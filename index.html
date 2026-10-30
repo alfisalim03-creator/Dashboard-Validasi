@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal QC Validasi & Laporan</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tambahkan Chart.js untuk menampilkan grafik tren -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -79,7 +78,6 @@
 
     <!-- TAB 1: HALAMAN QC VALIDASI -->
     <div id="pageQC" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 animate-fade-up">
-        <!-- Struktur Tab QC Tetap Sama Seperti Sebelumnya... -->
         <form id="qcForm" onsubmit="submitFormQC(event)" class="flex flex-col lg:flex-row gap-6">
             <div class="w-full lg:w-4/12 flex flex-col gap-6">
                 <!-- Form Identitas -->
@@ -307,14 +305,15 @@
     <div id="toastBox" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
+        // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI (Contoh di bawah jangan dihapus)
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0XtgHtB39wa55OwveCf92ozCo1Vc_B76_5rM9DkwfMl6oL_MNJla-Vwz8yp8RDt-/exec"; 
+        
         const paramMax = { q1: 5, q2: 5, q3: 20, q4: 15, q5: 10, q6: 10, q7: 10, q8: 5, q8_1: 10, q9: 5, q10: 5 };
         const questionMap = { q1: "Salam Pembuka", q2: "Konfirmasi Kesediaan", q3: "Verifikasi Data", q4: "Kesesuaian Edukasi", q5: "Pemilihan Kalimat", q6: "Kejelasan Ucapan", q7: "Etika Komunikasi", q8: "Pencatatan Hasil", q8_1: "Kesesuaian Pencatatan", q9: "Konfirmasi Pertanyaan", q10: "Salam Penutup" };
 
         let masterAgentData = []; 
         let masterQCData = [];
         
-        // Simpan instance chart global
         let chartQC = null;
         let chartTrenVal = null;
         let chartRegionVal = null;
@@ -330,7 +329,7 @@
                 if (document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob'))
                     document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob').className = isMatch ? "flex-none px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all" : "flex-none px-4 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all";
             });
-            if(tab === 'dashboard') { switchReportView(); } // Render ulang saat masuk ke tab dashboard
+            if(tab === 'dashboard') { switchReportView(); }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -354,19 +353,16 @@
             }).catch(e => console.error(e));
         });
 
-        // ==========================================
-        // FUNGSI NAVIGASI LAPORAN (QC / VALIDASI)
-        // ==========================================
         function switchReportView() {
             const type = document.getElementById('reportTypeSelector').value;
             document.getElementById('viewReportQC').classList.toggle('hidden', type !== 'qc');
             document.getElementById('viewReportValidasi').classList.toggle('hidden', type !== 'validasi');
             
             if(type === 'qc') {
-                processRankingsQC(); // Update Ranking Tim QC
-                generateReport();    // Update Detail Laporan Harian & Render Chart Tren QC
+                processRankingsQC(); 
+                generateReport();    
             } else {
-                renderValidasiReport(); // Update Filter, Tabel Ranking Agent, dan Chart Laporan Validasi
+                renderValidasiReport(); 
             }
         }
 
@@ -375,28 +371,21 @@
             document.getElementById('boxBulanVal').style.display = (type === 'month') ? 'block' : 'none';
         }
 
-        // ==========================================
-        // PROSES DATA UNTUK VIEW LAPORAN QC
-        // ==========================================
         function processRankingsQC() {
             if (!masterQCData.length) return;
             const qcStats = {};
-            masterQCData.forEach(row => {
-                qcStats[row.namaQC] = (qcStats[row.namaQC] || 0) + 1;
-            });
+            masterQCData.forEach(row => { qcStats[row.namaQC] = (qcStats[row.namaQC] || 0) + 1; });
             const qcRank = Object.keys(qcStats).map(n => ({ n, c: qcStats[n] })).sort((a, b) => b.c - a.c);
             const tblQC = document.getElementById('tblRankingQC'); tblQC.innerHTML = "";
             qcRank.forEach((qc, i) => tblQC.innerHTML += `<tr class="border-b border-slate-50"><td class="px-3 py-2 text-center">${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2 font-bold">${qc.n}</td><td class="px-3 py-2 text-center font-bold text-emerald-600">${qc.c} Laporan</td></tr>`);
         }
 
-        // Fungsi Membangun Kartu Detail Laporan & Grafik Tren QC
         function generateReport() {
             const namaQCSelected = document.getElementById('filterNamaQC').value;
             const bulanSelected = document.getElementById('filterBulanQC').value;
             const container = document.getElementById('reportContainer');
             if (!bulanSelected) { showToast('Pilih bulan terlebih dahulu.', 'error'); return; }
 
-            // 1. FILTERING DATA KARTU DETIL BERDASARKAN NAMA & BULAN
             const filteredDetail = masterQCData.filter(row => {
                 if (!row.timestamp) return false;
                 const d = new Date(row.timestamp);
@@ -429,7 +418,6 @@
                                 agentsMap[r.namaAgent].errors[k].count++;
                                 const cKey = k === 'q8_1' ? 'c8_1' : 'c' + k.replace('q', '');
                                 
-                                // Simpan Catatan Beserta Tanggal Call Agent
                                 if (r[cKey] && String(r[cKey]).trim() !== '') {
                                     agentsMap[r.namaAgent].errors[k].comments.push({
                                         text: String(r[cKey]).trim(),
@@ -459,7 +447,6 @@
                                 
                                 let commentsHtml = '';
                                 if (errDetail.comments.length > 0) {
-                                    // BENTUK LAYOUT KOMENTAR & BADGE TANGGAL CALL
                                     commentsHtml = `<div class="mt-1.5 pl-3 border-l-[2px] border-indigo-200 ml-1.5 space-y-1">
                                         ${errDetail.comments.map(c => {
                                             const formatTglCall = c.tglCall ? new Date(c.tglCall).toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}) : '';
@@ -501,8 +488,6 @@
                 });
                 container.innerHTML = htmlReport;
             }
-
-            // 2. RENDER CHART TREN HARIAN QC BERDASARKAN BULAN YANG SAMA
             renderQCChart(bulanSelected);
         }
 
@@ -517,7 +502,7 @@
             const groupedByDateStr = {};
             
             filtered.forEach(row => {
-                const dateStr = new Date(row.timestamp).toISOString().split('T')[0]; // Format YYYY-MM-DD untuk sorting
+                const dateStr = new Date(row.timestamp).toISOString().split('T')[0]; 
                 if(!groupedByDateStr[dateStr]) {
                     groupedByDateStr[dateStr] = {};
                     qcs.forEach(qc => groupedByDateStr[dateStr][qc] = 0);
@@ -529,7 +514,7 @@
 
             const sortedDates = Object.keys(groupedByDateStr).sort();
             const labels = sortedDates.map(d => new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }));
-            const colors = ['#4f46e5', '#10b981', '#f59e0b']; // Indigo, Emerald, Amber
+            const colors = ['#4f46e5', '#10b981', '#f59e0b']; 
 
             const datasets = qcs.map((qc, i) => {
                 return {
@@ -557,21 +542,14 @@
             });
         }
 
-
-        // ==========================================
-        // PROSES DATA UNTUK VIEW LAPORAN VALIDASI
-        // ==========================================
         function renderValidasiReport() {
             const filterRegion = document.getElementById('filterRegionVal').value;
             const filterPeriodeType = document.getElementById('filterPeriodeValType').value;
             const filterBulan = document.getElementById('filterBulanVal').value;
 
-            // Filter master data
             const filteredData = masterQCData.filter(row => {
                 if(!row.timestamp) return false;
-                // Filter Region
                 let passRegion = (filterRegion === 'ALL' || row.region === filterRegion);
-                // Filter Periode
                 let passPeriode = true;
                 if (filterPeriodeType === 'month' && filterBulan) {
                     const d = new Date(row.timestamp);
@@ -619,12 +597,27 @@
 
             if (chartTrenVal) chartTrenVal.destroy();
             chartTrenVal = new Chart(document.getElementById('chartTrenValidasi').getContext('2d'), {
-                type: filterPeriodeType === 'all' ? 'bar' : 'line',
+                type: 'line', // <--- SELALU MENGGUNAKAN LINE CHART
                 data: { 
                     labels: trendLabels, 
-                    datasets: [{ label: 'Jumlah Validasi', data: trendData, borderColor: '#0ea5e9', backgroundColor: '#0ea5e980', fill: true, tension: 0.3, borderWidth: 2, borderRadius: 4 }] 
+                    datasets: [{ 
+                        label: 'Jumlah Validasi', 
+                        data: trendData, 
+                        borderColor: '#0ea5e9', 
+                        backgroundColor: '#0ea5e920', // Opacity warna dibuat transparan (20)
+                        fill: true, 
+                        tension: 0.3, 
+                        borderWidth: 2, 
+                        pointBackgroundColor: '#0ea5e9',
+                        pointRadius: 4
+                    }] 
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } 
+                }
             });
 
             // 3. CHART VALIDASI PER REGION
@@ -646,10 +639,6 @@
             });
         }
 
-
-        // ==========================================
-        // FUNGSI UMUM & FORM
-        // ==========================================
         function autoFillRegion(val) { const f = masterAgentData.find(a => a.namaICRM === val); if (f && f.region) document.getElementById('regionQC').value = f.region; }
 
         function toggleAgentAccordion(headerElement) {
@@ -660,12 +649,22 @@
             if (arrow) arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
         }
 
+        // FUNGSI TOGGLE ACCORDION UNTUK CATATAN FORMULIR QC
         function toggleNoteAccordion(radioEl) {
             const card = radioEl.closest('.qc-item');
             if (!card) return;
             const noteBox = card.querySelector('.note-accordion');
-            const imperfect = Number(radioEl.value) < paramMax[radioEl.name];
-            noteBox.classList.toggle('open', imperfect);
+            
+            const paramId = radioEl.name;
+            const maxScore = paramMax[paramId];
+            const imperfect = Number(radioEl.value) < maxScore; 
+            
+            if (imperfect) {
+                noteBox.classList.add('open');
+            } else {
+                noteBox.classList.remove('open');
+            }
+            
             card.classList.add('answered');
             card.classList.toggle('flagged', imperfect);
             if (!imperfect) { const input = noteBox.querySelector('input'); if (input) input.value = ''; }
@@ -702,7 +701,7 @@
                 </div>
                 <div class="note-accordion accordion-content mt-1">
                     <div class="pt-2 border-t border-slate-200 mt-2">
-                        <input type="text" name="c_${param.id}" placeholder="📝 Wajib/Opsional: Ketik catatan atau alasan..." class="w-full px-3 py-2 text-xs bg-white border border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-600 shadow-sm">
+                        <input type="text" name="c_${param.id}" placeholder="📝 Wajib/Opsional: Ketik catatan atau alasan pelanggaran..." class="w-full px-3 py-2 text-xs bg-white border border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-600 shadow-sm">
                     </div>
                 </div>
             </div>`;
