@@ -30,10 +30,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-lg">QC</div>
-                <div>
-                    <h1 class="font-bold text-slate-800 leading-tight">Portal QC Validasi</h1>
-                    <p class="text-[11px] text-slate-500 font-medium">Monitoring & Analitik</p>
-                </div>
+                <div><h1 class="font-bold text-slate-800 leading-tight">Portal QC Validasi</h1><p class="text-[11px] text-slate-500 font-medium">Monitoring & Analitik</p></div>
             </div>
             <!-- Desktop Tabs -->
             <div class="hidden sm:flex bg-slate-100 p-1 rounded-xl">
@@ -50,31 +47,30 @@
         </div>
     </nav>
 
-    <!-- TAB 1: HALAMAN QC VALIDASI (Tetap sama seperti sebelumnya) -->
+    <!-- TAB 1: HALAMAN QC VALIDASI -->
     <div id="pageQC" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 animate-fade-up">
         <form id="qcForm" onsubmit="submitFormQC(event)" class="flex flex-col lg:flex-row gap-6">
-            <!-- Form Identitas -->
             <div class="w-full lg:w-4/12 flex flex-col gap-6">
+                <!-- Form Identitas (Sama seperti sebelumnya) -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-6">
                     <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 pb-3 border-b border-slate-100 flex items-center justify-between">
-                        <span>📋 Data Identitas</span>
-                        <span id="agentSyncStatus" class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 hidden">✅ Sinkron</span>
+                        <span>📋 Data Identitas</span><span id="agentSyncStatus" class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 hidden">✅ Sinkron</span>
                     </h2>
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Agent ICRM</label>
                             <input type="text" id="namaAgent" name="namaAgent" list="icrmList" required autocomplete="off" placeholder="Ketik untuk mencari..." 
-                                class="w-full px-3.5 py-2.5 text-sm bg-indigo-50/50 border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all font-bold text-indigo-700"
+                                class="w-full px-3.5 py-2.5 text-sm bg-indigo-50/50 border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all font-bold text-indigo-700"
                                 oninput="autoFillRegion(this.value)">
                             <datalist id="icrmList"></datalist>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 mb-1.5">ID Permohonan</label>
-                            <input type="text" id="idPermohonan" name="idPermohonan" required placeholder="ID Permohonan" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
+                            <input type="text" name="idPermohonan" required placeholder="Contoh: PRM-202610-001" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama QC</label>
-                            <select id="namaQC" name="namaQC" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
+                            <select name="namaQC" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
                                 <option value="" disabled selected>Pilih Nama QC...</option>
                                 <option value="Mahmed Farissa">Mahmed Farissa</option>
                                 <option value="Nurul Fatima Assyahrul Hidayati">Nurul Fatima Assyahrul Hidayati</option>
@@ -93,396 +89,269 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tgl Call Agent</label>
-                                <input type="date" id="tglCall" name="tglCall" required onclick="try{this.showPicker();}catch(e){}" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
+                                <input type="date" name="tglCall" required onclick="try{this.showPicker();}catch(e){}" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Pemohon (Pelanggan)</label>
-                            <input type="text" id="namaPemohon" name="namaPemohon" required placeholder="Nama lengkap pelanggan..." class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Pemohon</label>
+                            <input type="text" name="namaPemohon" required placeholder="Nama pelanggan..." class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nomor yang Dihubungi</label>
-                            <input type="tel" id="nomorKontak" name="nomorKontak" required placeholder="Nomor Telp" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nomor Dihubungi</label>
+                            <input type="tel" name="nomorKontak" required placeholder="Contoh: 0812..." class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
                         </div>
                     </div>
                 </div>
 
-                <!-- Scoreboard Kiri Desktop -->
+                <!-- Scoreboard Desktop (Maks 100) -->
                 <div class="bg-slate-900 rounded-2xl shadow-xl border border-slate-800 p-5 lg:p-6 text-white sticky top-24 hidden lg:block">
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Skor Kepatuhan Agent</p>
-                    <div class="flex items-end gap-2 mb-4"><h2 class="text-5xl font-black" id="scoreTotalDesk">0</h2><span class="text-lg font-medium text-slate-400 mb-1.5">/ 85</span></div>
+                    <div class="flex items-end gap-2 mb-4"><h2 class="text-5xl font-black" id="scoreTotalDesk">0</h2><span class="text-lg font-medium text-slate-400 mb-1.5">/ 100</span></div>
                     <div class="w-full bg-slate-800 rounded-full h-3 mb-2"><div id="scoreBarDesk" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div></div>
                     <div class="flex justify-between items-center text-xs font-semibold text-slate-400 mb-6"><span>Persentase: <span id="scorePctDesk" class="text-white">0%</span></span><span id="scoreStatusDesk" class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Menunggu...</span></div>
                     <button type="submit" id="btnSubmitDesk" class="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-[0_0_15px_rgba(79,70,229,0.3)]">Kirim Penilaian QC</button>
                 </div>
             </div>
 
-            <!-- Form Checklist Mandatori -->
+            <!-- Form Checklist Mandatori (Dengan Input Catatan) -->
             <div class="w-full lg:w-8/12">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-8">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
                         <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">✅ 10 Parameter Mandatori</h2>
                         <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">Max: 100 Poin</span>
                     </div>
-                    <div id="checklistContainer" class="space-y-6"></div>
+                    <div id="checklistContainer" class="space-y-5"></div>
                 </div>
             </div>
             
             <div class="block lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
                 <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Total Skor</p><p class="text-xl font-black text-slate-800"><span id="scoreTotalMob">0</span><span class="text-xs text-slate-400">/85</span></p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Total Skor</p><p class="text-xl font-black text-slate-800"><span id="scoreTotalMob">0</span><span class="text-xs text-slate-400">/100</span></p></div>
                     <button type="submit" id="btnSubmitMob" class="flex-1 py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-sm">Kirim QC</button>
                 </div>
             </div>
         </form>
     </div>
 
-    <!-- TAB 2: HALAMAN REGISTRASI DATA AGENT (Tetap sama seperti sebelumnya) -->
+    <!-- TAB 2: HALAMAN REGISTRASI DATA AGENT (Sama seperti sebelumnya) -->
     <div id="pageAgent" class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 hidden-tab animate-fade-up">
+        <!-- (Kode Registrasi Agent disederhanakan visualisasinya agar hemat tempat) -->
         <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden">
-            <div class="bg-slate-900 p-6 sm:p-8 text-center">
-                <div class="w-16 h-16 bg-white/10 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4 border border-white/10">👨‍💻</div>
-                <h2 class="text-xl sm:text-2xl font-bold text-white">Registrasi Data Agent Baru</h2>
-            </div>
+            <div class="bg-slate-900 p-6 sm:p-8 text-center"><h2 class="text-xl font-bold text-white">Registrasi Data Agent Baru</h2></div>
             <form id="agentForm" onsubmit="submitFormAgent(event)" class="p-6 sm:p-8 space-y-5">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Lengkap Agent</label>
-                    <input type="text" name="namaLengkap" required placeholder="Nama Lengkap" class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Akun ICRM <span class="text-rose-500">*</span></label>
-                    <input type="text" name="namaICRM" required placeholder="Akun ICRM+" class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-bold text-indigo-700">
-                </div>
+                <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Lengkap Agent</label><input type="text" name="namaLengkap" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-indigo-500/20 font-medium"></div>
+                <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Akun ICRM *</label><input type="text" name="namaICRM" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold text-indigo-700"></div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nomor Telepon</label>
-                        <input type="tel" name="noTelp" required placeholder="Nomor Telp" class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
-                    </div>
+                    <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Nomor Telepon</label><input type="tel" name="noTelp" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium"></div>
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-1.5">Region SBU</label>
-                        <select name="region" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700">
-                            <option value="" disabled selected>Pilih Region...</option>
+                        <select name="region" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-700">
                             <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
                             <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
                             <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option><option value="SIBT">SIBT</option>
                         </select>
                     </div>
                 </div>
-                <div class="pt-4 border-t border-slate-100 mt-6">
-                    <button type="submit" id="btnSubmitAgent" class="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-lg">Simpan Data Agent</button>
-                </div>
+                <button type="submit" id="btnSubmitAgent" class="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-lg mt-4">Simpan Data Agent</button>
             </form>
         </div>
     </div>
 
-    <!-- TAB 3: DASHBOARD & LAPORAN QC (BARU) -->
+    <!-- TAB 3: DASHBOARD & LAPORAN QC -->
     <div id="pageDashboard" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 hidden-tab animate-fade-up pb-10">
         
-        <!-- Leaderboard Atas (Grid 2 Kolom) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <!-- Ranking Agent -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                 <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">🏆 Top Ranking Validasi Agent</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="text-xs text-slate-500 bg-slate-50 uppercase">
-                            <tr><th class="px-3 py-2 rounded-l-lg">Peringkat</th><th class="px-3 py-2">Nama Agent</th><th class="px-3 py-2 text-right rounded-r-lg">Rata-rata Skor</th></tr>
-                        </thead>
-                        <tbody id="tblRankingAgent" class="divide-y divide-slate-100">
-                            <tr><td colspan="3" class="text-center py-4 text-slate-400 text-xs">Memuat data...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="text-xs text-slate-500 bg-slate-50 uppercase"><tr><th class="px-3 py-2">Peringkat</th><th class="px-3 py-2">Nama Agent</th><th class="px-3 py-2 text-right">Rata-rata Skor</th></tr></thead><tbody id="tblRankingAgent" class="divide-y divide-slate-100"></tbody></table></div>
             </div>
-
-            <!-- Ranking QC -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                 <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">🥇 Leaderboard Kinerja Tim QC</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="text-xs text-slate-500 bg-slate-50 uppercase">
-                            <tr><th class="px-3 py-2 rounded-l-lg">Peringkat</th><th class="px-3 py-2">Nama Petugas QC</th><th class="px-3 py-2 text-center rounded-r-lg">Jumlah Validasi (Total)</th></tr>
-                        </thead>
-                        <tbody id="tblRankingQC" class="divide-y divide-slate-100">
-                            <tr><td colspan="3" class="text-center py-4 text-slate-400 text-xs">Memuat data...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                <div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="text-xs text-slate-500 bg-slate-50 uppercase"><tr><th class="px-3 py-2">Peringkat</th><th class="px-3 py-2">Nama Petugas QC</th><th class="px-3 py-2 text-center">Total Validasi</th></tr></thead><tbody id="tblRankingQC" class="divide-y divide-slate-100"></tbody></table></div>
             </div>
         </div>
 
         <!-- Laporan Detail QC berdasarkan Nama dan Bulan -->
         <div class="bg-white p-5 lg:p-6 rounded-2xl shadow-sm border border-slate-100">
             <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">📑 Laporan Detil Harian QC</h3>
-            
-            <!-- Filter Laporan -->
             <div class="flex flex-col sm:flex-row gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl mb-6">
                 <div class="flex-1">
                     <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Pilih Nama QC</label>
-                    <select id="filterNamaQC" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
-                        <option value="Mahmed Farissa">Mahmed Farissa</option>
-                        <option value="Nurul Fatima Assyahrul Hidayati">Nurul Fatima Assyahrul Hidayati</option>
-                        <option value="Agung Setiawan">Agung Setiawan</option>
+                    <select id="filterNamaQC" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg">
+                        <option value="Mahmed Farissa">Mahmed Farissa</option><option value="Nurul Fatima Assyahrul Hidayati">Nurul Fatima Assyahrul Hidayati</option><option value="Agung Setiawan">Agung Setiawan</option>
                     </select>
                 </div>
                 <div class="flex-1">
                     <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Pilih Bulan (Waktu QC)</label>
-                    <!-- Tipe month untuk memilih tahun dan bulan -->
-                    <input type="month" id="filterBulanQC" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500" onclick="try{this.showPicker();}catch(e){}">
+                    <input type="month" id="filterBulanQC" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg" onclick="try{this.showPicker();}catch(e){}">
                 </div>
                 <div class="sm:flex-none flex items-end">
                     <button onclick="generateReport()" class="w-full sm:w-auto px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm transition-colors">Tampilkan Laporan</button>
                 </div>
             </div>
-
-            <!-- Hasil Laporan -->
-            <div id="reportContainer" class="space-y-4">
-                <div class="text-center py-10 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 text-sm">
-                    Pilih nama QC dan Bulan di atas, lalu klik "Tampilkan Laporan"
-                </div>
-            </div>
-
+            <div id="reportContainer" class="space-y-4"></div>
         </div>
     </div>
 
 
     <script>
         // GANTI DENGAN URL WEB APP GOOGLE SCRIPT ANDA
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0XtgHtB39wa55OwveCf92ozCo1Vc_B76_5rM9DkwfMl6oL_MNJla-Vwz8yp8RDt-/exec"; 
+        const SCRIPT_URL = "MASUKKAN_URL_WEB_APP_ANDA_DI_SINI"; 
+        
+        // Poin Maksimal per parameter (Total: 100)
+        const paramMax = { q1: 5, q2: 5, q3: 20, q4: 15, q5: 10, q6: 10, q7: 10, q8: 5, q8_1: 10, q9: 5, q10: 5 };
 
-        // Navigasi Tab
         function switchTab(tab) {
             const tabs = ['qc', 'agent', 'dashboard'];
             tabs.forEach(t => {
                 const isMatch = (t === tab);
-                // Toggle Tab Content
-                const pageEl = document.getElementById('page' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dashboard'));
-                if (pageEl) {
-                    if (isMatch) pageEl.classList.remove('hidden-tab');
-                    else pageEl.classList.add('hidden-tab');
-                }
-                
-                // Toggle Desktop Buttons
-                const btnDesk = document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash'));
-                if (btnDesk) {
-                    btnDesk.className = isMatch ? "px-4 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all" 
-                                                : "px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all";
-                }
-
-                // Toggle Mobile Buttons
-                const btnMob = document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob');
-                if (btnMob) {
-                    btnMob.className = isMatch ? "flex-none px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all" 
-                                               : "flex-none px-4 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all";
-                }
+                document.getElementById('page' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dashboard'))?.classList.toggle('hidden-tab', !isMatch);
+                if (document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash')))
+                    document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash')).className = isMatch ? "px-4 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all" : "px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all";
+                if (document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob'))
+                    document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob').className = isMatch ? "flex-none px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all" : "flex-none px-4 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all";
             });
         }
 
-        // Variabel global
-        let masterAgentData = [];
-        let masterQCData = [];
-        
-        // Dictionary Pertanyaan untuk mengubah kode Q menjadi Teks saat laporan
-        const questionMap = {
-            q1: "Salam Pembuka", q2: "Konfirmasi Kesediaan", q3: "Verifikasi Data",
-            q4: "Kesesuaian Edukasi", q5: "Pemilihan Kalimat", q6: "Kejelasan Ucapan",
-            q7: "Etika Komunikasi", q8: "Pencatatan Hasil", q8_1: "Kesesuaian Pencatatan",
-            q9: "Konfirmasi Pertanyaan", q10: "Salam Penutup"
-        };
+        let masterAgentData = []; let masterQCData = [];
+        const questionMap = { q1: "Salam Pembuka", q2: "Konfirmasi Kesediaan", q3: "Verifikasi Data", q4: "Kesesuaian Edukasi", q5: "Pemilihan Kalimat", q6: "Kejelasan Ucapan", q7: "Etika Komunikasi", q8: "Pencatatan Hasil", q8_1: "Kesesuaian Pencatatan", q9: "Konfirmasi Pertanyaan", q10: "Salam Penutup" };
 
-        // Tarik Data (Agent & Laporan QC) saat web dimuat
         window.addEventListener('DOMContentLoaded', () => {
-            // Set Default Bulan Filter (Bulan Ini)
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            document.getElementById('filterBulanQC').value = `${yyyy}-${mm}`;
-
-            fetch(SCRIPT_URL)
-                .then(response => response.json())
-                .then(result => {
-                    if (result.status === "sukses") {
-                        // 1. Data Agent untuk Autocomplete
-                        masterAgentData = result.dataAgent || [];
-                        const datalist = document.getElementById('icrmList');
-                        datalist.innerHTML = "";
-                        masterAgentData.forEach(agent => {
-                            const option = document.createElement('option');
-                            option.value = agent.namaICRM;
-                            datalist.appendChild(option);
-                        });
-                        document.getElementById('agentSyncStatus').classList.remove('hidden');
-
-                        // 2. Data QC untuk Laporan & Ranking
-                        masterQCData = result.dataQC || [];
-                        processRankings();
-                    }
-                })
-                .catch(err => console.error("Gagal menarik data server: ", err));
+            const today = new Date(); document.getElementById('filterBulanQC').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+            fetch(SCRIPT_URL).then(r => r.json()).then(result => {
+                if (result.status === "sukses") {
+                    masterAgentData = result.dataAgent || [];
+                    const datalist = document.getElementById('icrmList'); datalist.innerHTML = "";
+                    masterAgentData.forEach(ag => { const o = document.createElement('option'); o.value = ag.namaICRM; datalist.appendChild(o); });
+                    document.getElementById('agentSyncStatus').classList.remove('hidden');
+                    masterQCData = result.dataQC || []; processRankings();
+                }
+            }).catch(e => console.error(e));
         });
 
-        // FUNGSI AUTOFILL REGION
-        function autoFillRegion(inputValue) {
-            const foundAgent = masterAgentData.find(agent => agent.namaICRM === inputValue);
-            if (foundAgent && foundAgent.region) { document.getElementById('regionQC').value = foundAgent.region; }
-        }
+        function autoFillRegion(val) { const f = masterAgentData.find(a => a.namaICRM === val); if (f && f.region) document.getElementById('regionQC').value = f.region; }
 
-        // FUNGSI MEMROSES LEADERBOARD (RANKING)
         function processRankings() {
-            if (masterQCData.length === 0) return;
-
-            // --- 1. Ranking Agent (Rata-rata Skor) ---
-            const agentStats = {};
+            if (!masterQCData.length) return;
+            const agentStats = {}; const qcStats = {};
             masterQCData.forEach(row => {
-                if (!agentStats[row.namaAgent]) agentStats[row.namaAgent] = { totalSkor: 0, count: 0 };
-                agentStats[row.namaAgent].totalSkor += Number(row.totalSkor || 0);
-                agentStats[row.namaAgent].count += 1;
+                if (!agentStats[row.namaAgent]) agentStats[row.namaAgent] = { t: 0, c: 0 };
+                agentStats[row.namaAgent].t += Number(row.totalSkor || 0); agentStats[row.namaAgent].c += 1;
+                qcStats[row.namaQC] = (qcStats[row.namaQC] || 0) + 1;
             });
 
-            // Ubah object ke array, hitung rata-rata, lalu urutkan
-            const agentRank = Object.keys(agentStats).map(name => {
-                return { name: name, avg: (agentStats[name].totalSkor / agentStats[name].count) };
-            }).sort((a, b) => b.avg - a.avg).slice(0, 10); // Ambil Top 10
+            const agentRank = Object.keys(agentStats).map(n => ({ n, avg: agentStats[n].t / agentStats[n].c })).sort((a, b) => b.avg - a.avg).slice(0, 10);
+            const tblAg = document.getElementById('tblRankingAgent'); tblAg.innerHTML = "";
+            agentRank.forEach((ag, i) => tblAg.innerHTML += `<tr class="border-b border-slate-50"><td class="px-3 py-2 text-center">${i<3?['🏆','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2 font-bold">${ag.n}</td><td class="px-3 py-2 text-right"><span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-lg font-bold">${ag.avg.toFixed(1)}/100</span></td></tr>`);
 
-            const tblAgent = document.getElementById('tblRankingAgent');
-            tblAgent.innerHTML = "";
-            agentRank.forEach((ag, idx) => {
-                let medal = idx === 0 ? '🏆' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `<span class="text-slate-400 font-bold w-6 inline-block text-center">${idx + 1}</span>`;
-                tblAgent.innerHTML += `<tr class="border-b border-slate-50 hover:bg-slate-50">
-                    <td class="px-3 py-2 w-16 text-center">${medal}</td>
-                    <td class="px-3 py-2 font-bold text-slate-700">${ag.name}</td>
-                    <td class="px-3 py-2 text-right"><span class="px-2 py-1 bg-indigo-50 text-indigo-700 font-bold rounded-lg">${ag.avg.toFixed(1)} / 85</span></td>
-                </tr>`;
-            });
-
-            // --- 2. Ranking QC (Jumlah Validasi) ---
-            const qcStats = {};
-            masterQCData.forEach(row => {
-                if (!qcStats[row.namaQC]) qcStats[row.namaQC] = 0;
-                qcStats[row.namaQC] += 1;
-            });
-
-            const qcRank = Object.keys(qcStats).map(name => {
-                return { name: name, count: qcStats[name] };
-            }).sort((a, b) => b.count - a.count);
-
-            const tblQC = document.getElementById('tblRankingQC');
-            tblQC.innerHTML = "";
-            qcRank.forEach((qc, idx) => {
-                let medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : idx+1;
-                tblQC.innerHTML += `<tr class="border-b border-slate-50 hover:bg-slate-50">
-                    <td class="px-3 py-2 w-16 text-center">${medal}</td>
-                    <td class="px-3 py-2 font-bold text-slate-700">${qc.name}</td>
-                    <td class="px-3 py-2 text-center font-bold text-emerald-600">${qc.count} Laporan</td>
-                </tr>`;
-            });
+            const qcRank = Object.keys(qcStats).map(n => ({ n, c: qcStats[n] })).sort((a, b) => b.c - a.c);
+            const tblQC = document.getElementById('tblRankingQC'); tblQC.innerHTML = "";
+            qcRank.forEach((qc, i) => tblQC.innerHTML += `<tr class="border-b border-slate-50"><td class="px-3 py-2 text-center">${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2 font-bold">${qc.n}</td><td class="px-3 py-2 text-center font-bold text-emerald-600">${qc.c} Laporan</td></tr>`);
         }
 
-        // FUNGSI MEMBUAT LAPORAN DETIL QC
+        // FUNGSI LAPORAN DENGAN PENGELOMPOKAN VERTIKAL & KOMENTAR
         function generateReport() {
-            const namaQCSelected = document.getElementById('filterNamaQC').value;
-            const bulanSelected = document.getElementById('filterBulanQC').value; // Format: "YYYY-MM"
+            const namaQCSelected = document.getElementById('filterNamaQC').value, bulanSelected = document.getElementById('filterBulanQC').value;
             const container = document.getElementById('reportContainer');
+            if (!bulanSelected) { alert("Pilih bulan terlebih dahulu!"); return; }
 
-            if (!bulanSelected) {
-                alert("Harap pilih bulan laporan terlebih dahulu!"); return;
-            }
-
-            // Filter data master berdasarkan Nama QC dan Bulan (berdasarkan waktu disubmit/timestamp)
             const filteredData = masterQCData.filter(row => {
                 if (!row.timestamp) return false;
-                const rowDate = new Date(row.timestamp);
-                const rowYm = `${rowDate.getFullYear()}-${String(rowDate.getMonth() + 1).padStart(2, '0')}`;
-                return row.namaQC === namaQCSelected && rowYm === bulanSelected;
+                const d = new Date(row.timestamp);
+                return row.namaQC === namaQCSelected && `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` === bulanSelected;
             });
 
-            if (filteredData.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 border-2 border-dashed border-rose-200 bg-rose-50 rounded-xl text-rose-500 font-medium text-sm">Tidak ada data QC untuk petugas dan bulan tersebut.</div>`;
-                return;
-            }
+            if (!filteredData.length) { container.innerHTML = `<div class="text-center py-10 border-2 border-dashed border-rose-200 bg-rose-50 rounded-xl text-rose-500 font-medium text-sm">Tidak ada data.</div>`; return; }
 
-            // Grouping data berdasarkan Tanggal (Format: DD MMMM YYYY)
             const groupedByDate = {};
             filteredData.forEach(row => {
-                const d = new Date(row.timestamp);
-                const dateKey = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                const dateKey = new Date(row.timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
                 if (!groupedByDate[dateKey]) groupedByDate[dateKey] = [];
                 groupedByDate[dateKey].push(row);
             });
 
-            // Render Laporan
             let htmlReport = '';
-            
-            // Urutkan tanggal (agar tidak berantakan)
-            const sortedDates = Object.keys(groupedByDate).sort((a, b) => new Date(a) - new Date(b));
-
-            sortedDates.forEach(date => {
+            Object.keys(groupedByDate).sort((a, b) => new Date(a) - new Date(b)).forEach(date => {
                 const rowsInDate = groupedByDate[date];
-                const totalAgentQC = rowsInDate.length;
                 
-                // Daftar semua agen yang di QC pada hari itu
-                const allAgentsNames = rowsInDate.map(r => `<span class="inline-block bg-slate-100 px-2 py-0.5 rounded text-slate-600 mr-1 mb-1">${r.namaAgent}</span>`).join('');
-
-                // Mencari agen yang nilainya tidak sempurna (< 85)
-                const imperfectAgents = rowsInDate.filter(r => Number(r.totalSkor) < 85);
-                
-                let imperfectHtml = '';
-                if (imperfectAgents.length === 0) {
-                    imperfectHtml = `<p class="text-xs text-emerald-600 font-bold bg-emerald-50 px-3 py-2 rounded-lg mt-2 border border-emerald-100">🎉 Semua agent mendapatkan poin sempurna (85) pada tanggal ini.</p>`;
-                } else {
-                    imperfectHtml = `<div class="mt-3 bg-rose-50/50 border border-rose-100 rounded-xl p-3">
-                        <p class="text-xs font-bold text-rose-700 mb-2 border-b border-rose-100 pb-1">⚠️ Agent dengan nilai tidak sempurna (< 85) :</p>
-                        <div class="space-y-2">`;
+                // Group by Agent pada hari tersebut
+                const agentsMap = {};
+                rowsInDate.forEach(r => {
+                    if (!agentsMap[r.namaAgent]) agentsMap[r.namaAgent] = { totalEvals: 0, errors: {} };
+                    agentsMap[r.namaAgent].totalEvals++;
                     
-                    imperfectAgents.forEach(ag => {
-                        // Mencari parameter mana saja yang bernilai 0
-                        let zeroParams = [];
-                        const keys = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q8_1', 'q9', 'q10'];
-                        keys.forEach(k => {
-                            if (String(ag[k]) === '0') zeroParams.push(questionMap[k]);
+                    // Mengecek pelanggaran di ke-11 parameter
+                    Object.keys(paramMax).forEach(k => {
+                        const score = Number(r[k]), maxScore = paramMax[k];
+                        if (score < maxScore) { // Artinya terjadi pelanggaran/tidak sempurna (Bisa nilai 0 atau parsial)
+                            if (!agentsMap[r.namaAgent].errors[k]) agentsMap[r.namaAgent].errors[k] = { count: 0, comments: [] };
+                            agentsMap[r.namaAgent].errors[k].count++;
+                            
+                            // Mengambil komentar dari c1, c2, dst... (c8_1 untuk q8_1)
+                            const cKey = k === 'q8_1' ? 'c8_1' : 'c' + k.replace('q', '');
+                            if (r[cKey] && String(r[cKey]).trim() !== '') {
+                                agentsMap[r.namaAgent].errors[k].comments.push(String(r[cKey]).trim());
+                            }
+                        }
+                    });
+                });
+
+                let imperfectHtml = '';
+                const agentNames = Object.keys(agentsMap);
+                const agentsWithErrors = agentNames.filter(name => Object.keys(agentsMap[name].errors).length > 0);
+
+                if (agentsWithErrors.length === 0) {
+                    imperfectHtml = `<p class="text-xs text-emerald-600 font-bold bg-emerald-50 px-3 py-2 rounded-lg mt-2 border border-emerald-100">🎉 Semua agent mendapatkan poin sempurna (100) pada tanggal ini.</p>`;
+                } else {
+                    imperfectHtml = `<div class="mt-4 bg-rose-50/50 border border-rose-100 rounded-xl p-3 sm:p-4">
+                        <p class="text-xs font-bold text-rose-700 mb-3 border-b border-rose-100 pb-1.5 uppercase tracking-wider">⚠️ Agent dengan nilai tidak sempurna (< 100) :</p>
+                        <div class="space-y-3">`;
+                        
+                    agentsWithErrors.forEach(name => {
+                        const agentData = agentsMap[name];
+                        let errorListHtml = '';
+                        
+                        Object.keys(agentData.errors).forEach(errKey => {
+                            const errDetail = agentData.errors[errKey];
+                            const countBadge = errDetail.count > 1 ? `<span class="text-rose-500 font-bold text-[10px] bg-rose-100 px-1.5 py-0.5 rounded-md ml-1.5 border border-rose-200">${errDetail.count}x Gagal</span>` : '';
+                            
+                            let commentsHtml = '';
+                            if (errDetail.comments.length > 0) {
+                                commentsHtml = `<div class="text-[11px] text-slate-500 mt-1 pl-3 border-l-[2px] border-indigo-200 ml-1.5 space-y-0.5">
+                                    ${errDetail.comments.map(c => `<div><span class="text-indigo-400">💬</span> ${c}</div>`).join('')}
+                                </div>`;
+                            }
+                            
+                            errorListHtml += `<li class="flex flex-col mb-2.5">
+                                <div class="flex items-center text-xs font-bold text-slate-700"><span class="text-rose-500 mr-2 text-[10px]">▪</span> ${questionMap[errKey]} ${countBadge}</div>
+                                ${commentsHtml}
+                            </li>`;
                         });
-
-                        const paramText = zeroParams.length > 0 
-                            ? `<span class="text-rose-600 font-medium">Bocor di: ${zeroParams.join(', ')}</span>`
-                            : `<span class="text-amber-600 font-medium">Nilai tidak maksimal (Tidak ada nilai mutlak 0, tapi poin parsial)</span>`;
-
-                        imperfectHtml += `<div class="bg-white p-2 rounded-lg border border-rose-50 text-xs">
-                            <div class="font-bold text-slate-700 flex justify-between">
-                                <span>👤 ${ag.namaAgent}</span>
-                                <span class="bg-rose-100 text-rose-700 px-1.5 rounded">${ag.totalSkor} / 85</span>
+                        
+                        imperfectHtml += `<div class="bg-white p-3.5 rounded-xl border border-rose-50 shadow-sm">
+                            <div class="font-black text-slate-800 text-sm mb-3 flex items-center justify-between border-b border-slate-100 pb-2">
+                                <span>👤 ${name}</span><span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2.5 py-1 rounded-md">Di-QC ${agentData.totalEvals}x Hari Ini</span>
                             </div>
-                            <div class="mt-1 flex gap-1.5 items-start">
-                                <span>📉</span>
-                                ${paramText}
-                            </div>
+                            <ul class="pl-1">${errorListHtml}</ul>
                         </div>`;
                     });
                     imperfectHtml += `</div></div>`;
                 }
 
-                htmlReport += `
-                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                    <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center">
-                        <h4 class="font-bold text-slate-800 flex items-center gap-2">📅 ${date}</h4>
-                        <span class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md">${totalAgentQC} Agent di-QC</span>
-                    </div>
-                    <div class="p-4">
-                        <p class="text-[11px] font-bold text-slate-400 uppercase mb-2">Daftar Agent yang di-QC :</p>
-                        <div class="text-xs mb-4">${allAgentsNames}</div>
-                        ${imperfectHtml}
-                    </div>
+                htmlReport += `<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm mb-4">
+                    <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center"><h4 class="font-bold text-slate-800 text-sm">📅 ${date}</h4><span class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md">${agentNames.length} Agent di-QC</span></div>
+                    <div class="p-4"><p class="text-[11px] font-bold text-slate-400 uppercase mb-2">Daftar Agent :</p><div class="text-xs">${agentNames.map(n=>`<span class="inline-block bg-slate-100 px-2 py-1 rounded-md text-slate-600 font-medium mr-1.5 mb-1.5">${n}</span>`).join('')}</div>${imperfectHtml}</div>
                 </div>`;
             });
-
             container.innerHTML = htmlReport;
         }
 
-        // GENERATE CHECKLIST MANDATORI
+        // PARAMETER MANDATORI (Q3 Menjadi 20 Point, Tambah Input Catatan)
         const qcParameters = [
             { id: 'q1', title: "1. Salam Pembuka", desc: "Mengucapkan salam standar awal", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
             { id: 'q2', title: "2. Konfirmasi Kesediaan", desc: "Meminta izin pelanggan", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
-            { id: 'q3', title: "3. Verifikasi Data", desc: "Mencocokkan data pelanggan", options: [{label: "Yes (20)", val: 20}, {label: "No (0)", val: 0}] },
-            { id: 'q4', title: "4. Kesesuaian Edukasi", desc: "Informasi layanan benar", options: [{label: "Penuh (15)", val: 15, class: 'val-mid'}, {label: "Sebagian (10)", val: 10, class: 'val-mid'}, {label: "No (0)", val: 0, class: 'val-0'}] },
+            { id: 'q3', title: "3. Verifikasi Data", desc: "Mencocokkan data pelanggan (Poin Besar)", options: [{label: "Yes (20)", val: 20}, {label: "No (0)", val: 0}] },
+            { id: 'q4', title: "4. Kesesuaian Edukasi", desc: "Informasi layanan benar", options: [{label: "Penuh (15)", val: 15, class: 'val-mid'}, {label: "Sebagian (10)", val: 10, class: 'val-mid'}, {label: "Tidak (0)", val: 0, class: 'val-0'}] },
             { id: 'q5', title: "5. Pemilihan Kalimat", desc: "Bahasa profesional", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
             { id: 'q6', title: "6. Kejelasan Ucapan", desc: "Artikulasi dan intonasi", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
             { id: 'q7', title: "7. Etika Komunikasi", desc: "Sopan, tidak memotong", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
@@ -499,26 +368,33 @@
                 const radioClass = opt.val === 0 ? 'val-0' : (opt.class || 'val-full');
                 optionsHtml += `<div class="flex-1 radio-btn-group"><input type="radio" id="${param.id}_opt${i}" name="${param.id}" value="${opt.val}" class="${radioClass}" required onchange="calculateScore()"><label for="${param.id}_opt${i}" class="block w-full text-center py-2 px-1 rounded-lg text-[11px] sm:text-[13px] font-bold select-none h-full flex items-center justify-center leading-tight">${opt.label}</label></div>`;
             });
-            qcCont.innerHTML += `<div class="p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4"><div class="sm:w-1/2"><h3 class="text-[13px] sm:text-sm font-bold text-slate-800">${param.title}</h3><p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">${param.desc}</p></div><div class="sm:w-1/2 flex gap-1">${optionsHtml}</div></div></div>`;
+            qcCont.innerHTML += `<div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/30 hover:bg-slate-50 transition-colors">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-2">
+                    <div class="sm:w-1/2"><h3 class="text-[13px] sm:text-sm font-bold text-slate-800">${param.title}</h3><p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">${param.desc}</p></div>
+                    <div class="sm:w-1/2 flex gap-1">${optionsHtml}</div>
+                </div>
+                <div class="border-t border-slate-100 pt-2.5 mt-1">
+                    <input type="text" name="c_${param.id}" placeholder="📝 Ketik catatan / alasan jika skor tidak sempurna..." class="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-600 transition-all placeholder:text-slate-300">
+                </div>
+            </div>`;
         });
 
         function calculateScore() {
-            let total = 0;
-            const formData = new FormData(document.getElementById('qcForm'));
+            let total = 0; const formData = new FormData(document.getElementById('qcForm'));
             qcParameters.forEach(param => { const val = formData.get(param.id); if (val !== null) total += parseInt(val); });
             document.getElementById('scoreTotalDesk').innerText = total; document.getElementById('scoreTotalMob').innerText = total;
-            const pct = (total / 85) * 100;
+            const pct = (total / 100) * 100;
             document.getElementById('scorePctDesk').innerText = pct.toFixed(1) + '%';
             document.getElementById('scoreBarDesk').style.width = pct + '%';
-            const statusEl = document.getElementById('scoreStatusDesk');
-            if (total === 0) { document.getElementById('scoreBarDesk').className = "bg-slate-300 h-3 rounded-full transition-all duration-500"; statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>'; }
-            else if (pct >= 90) { document.getElementById('scoreBarDesk').className = "bg-emerald-500 h-3 rounded-full transition-all duration-500"; statusEl.innerHTML = '<span class="text-emerald-400 font-bold">Excellent 🌟</span>'; }
-            else if (pct >= 75) { document.getElementById('scoreBarDesk').className = "bg-indigo-500 h-3 rounded-full transition-all duration-500"; statusEl.innerHTML = '<span class="text-indigo-400 font-bold">Good 👍</span>'; }
-            else if (pct >= 50) { document.getElementById('scoreBarDesk').className = "bg-amber-500 h-3 rounded-full transition-all duration-500"; statusEl.innerHTML = '<span class="text-amber-400 font-bold">Needs Improvement ⚠️</span>'; }
-            else { document.getElementById('scoreBarDesk').className = "bg-rose-500 h-3 rounded-full transition-all duration-500"; statusEl.innerHTML = '<span class="text-rose-400 font-bold">Poor ❌</span>'; }
+            
+            const bar = document.getElementById('scoreBarDesk'), statusEl = document.getElementById('scoreStatusDesk');
+            if (total === 0) { bar.className = "bg-slate-300 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>'; }
+            else if (pct >= 90) { bar.className = "bg-emerald-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-emerald-400 font-bold">Excellent 🌟</span>'; }
+            else if (pct >= 75) { bar.className = "bg-indigo-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-indigo-400 font-bold">Good 👍</span>'; }
+            else if (pct >= 50) { bar.className = "bg-amber-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-amber-400 font-bold">Needs Improvement ⚠️</span>'; }
+            else { bar.className = "bg-rose-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-rose-400 font-bold">Poor ❌</span>'; }
         }
 
-        // SUBMIT FORM QC & AGENT (Sama seperti sebelumnya)
         function submitFormQC(event) {
             event.preventDefault();
             const btnDesk = document.getElementById('btnSubmitDesk'), btnMob = document.getElementById('btnSubmitMob');
@@ -527,7 +403,13 @@
 
             const formData = new FormData(event.target);
             const dataToSubmit = Object.fromEntries(formData.entries());
-            dataToSubmit.action = "inputQC"; dataToSubmit.totalSkor = document.getElementById('scoreTotalDesk').innerText;
+            dataToSubmit.action = "inputQC"; 
+            dataToSubmit.totalSkor = document.getElementById('scoreTotalDesk').innerText;
+            
+            // Menangkap semua komentar dari input c_q1 s/d c_q10 untuk dikirim sebagai c1 s/d c10
+            ['1','2','3','4','5','6','7','8','8_1','9','10'].forEach(num => {
+                dataToSubmit['c' + num] = formData.get('c_q' + num);
+            });
 
             fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataToSubmit), headers: { "Content-Type": "text/plain;charset=utf-8" } })
             .then(res => res.json()).then(result => {
@@ -540,11 +422,8 @@
             event.preventDefault();
             const btn = document.getElementById('btnSubmitAgent'); const originalText = btn.innerHTML;
             btn.innerHTML = "⏳ Menyimpan Data..."; btn.disabled = true;
-
-            const formData = new FormData(event.target);
-            const dataToSubmit = Object.fromEntries(formData.entries());
+            const formData = new FormData(event.target); const dataToSubmit = Object.fromEntries(formData.entries());
             dataToSubmit.action = "inputAgent";
-
             fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataToSubmit), headers: { "Content-Type": "text/plain;charset=utf-8" } })
             .then(res => res.json()).then(result => {
                 if (result.status === "sukses") { alert(`✅ Data Agent berhasil diregistrasi!`); event.target.reset(); window.location.reload(); } 
