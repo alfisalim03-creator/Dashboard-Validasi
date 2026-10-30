@@ -35,13 +35,11 @@
                     <p class="text-[11px] text-slate-500 font-medium">Monitoring Kualitas & Kepatuhan</p>
                 </div>
             </div>
-            <!-- Tab Switcher Navigation -->
             <div class="hidden sm:flex bg-slate-100 p-1 rounded-xl">
                 <button onclick="switchTab('qc')" id="btnTabQC" class="px-4 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">Formulir QC</button>
                 <button onclick="switchTab('agent')" id="btnTabAgent" class="px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Registrasi Agent</button>
             </div>
         </div>
-        <!-- Mobile Tab Switcher -->
         <div class="sm:hidden flex bg-slate-100 p-1 m-2 rounded-xl">
             <button onclick="switchTab('qc')" id="btnTabQCMob" class="flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">Formulir QC</button>
             <button onclick="switchTab('agent')" id="btnTabAgentMob" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all">Registrasi Agent</button>
@@ -51,23 +49,22 @@
     <!-- WRAPPER HALAMAN QC VALIDASI -->
     <div id="pageQC" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 animate-fade-up">
         <form id="qcForm" onsubmit="submitFormQC(event)" class="flex flex-col lg:flex-row gap-6">
+            
             <!-- SISI KIRI: Formulir Identitas -->
             <div class="w-full lg:w-4/12 flex flex-col gap-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-6">
                     <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 pb-3 border-b border-slate-100 flex items-center justify-between">
                         <span>📋 Data Identitas</span>
-                        <span id="agentSyncStatus" class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 hidden">✅ Agent tersinkronisasi</span>
+                        <span id="agentSyncStatus" class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 hidden">✅ Tersinkronisasi</span>
                     </h2>
                     
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Agent (Ketik untuk mencari...)</label>
-                            <!-- DATALIST UNTUK AUTOCOMPLETE NAMA ICRM -->
-                            <input type="text" id="namaAgent" name="namaAgent" list="icrmList" required autocomplete="off" placeholder="Cari nama akun ICRM..." 
-                                class="w-full px-3.5 py-2.5 text-sm bg-indigo-50/50 border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all font-bold text-indigo-700">
-                            <datalist id="icrmList">
-                                <!-- Opsi diisi otomatis via JS saat web dimuat -->
-                            </datalist>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Agent ICRM</label>
+                            <input type="text" id="namaAgent" name="namaAgent" list="icrmList" required autocomplete="off" placeholder="Ketik untuk mencari..." 
+                                class="w-full px-3.5 py-2.5 text-sm bg-indigo-50/50 border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all font-bold text-indigo-700"
+                                oninput="autoFillRegion(this.value)">
+                            <datalist id="icrmList"></datalist>
                         </div>
 
                         <div>
@@ -78,8 +75,13 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama QC</label>
-                            <input type="text" id="namaQC" name="namaQC" required placeholder="Nama Anda (Petugas QC)" 
-                                class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
+                            <!-- BERUBAH MENJADI DROPDOWN -->
+                            <select id="namaQC" name="namaQC" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium text-slate-700 cursor-pointer">
+                                <option value="" disabled selected>Pilih Nama QC...</option>
+                                <option value="Mahmed Farissa">Mahmed Farissa</option>
+                                <option value="Nurul Fatima Assyahrul Hidayati">Nurul Fatima Assyahrul Hidayati</option>
+                                <option value="Agung Setiawan">Agung Setiawan</option>
+                            </select>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -87,13 +89,16 @@
                                 <label class="block text-xs font-semibold text-slate-500 mb-1.5">Region SBU</label>
                                 <select id="regionQC" name="region" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium text-slate-700 cursor-pointer">
                                     <option value="" disabled selected>Pilih...</option>
-                                    <option value="JBB">JBB</option><option value="JBT">JBT</option><option value="JBTG">JBTG</option>
-                                    <option value="JKB">JKB</option><option value="KAL">KAL</option><option value="BNT">BNT</option>
+                                    <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
+                                    <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
+                                    <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option>
+                                    <option value="SIBT">SIBT</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tgl Call Agent</label>
-                                <input type="date" id="tglCall" name="tglCall" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
+                                <!-- MENAMBAHKAN ONCLICK AGAR FLEKSIBEL DITEKAN DI MANA SAJA -->
+                                <input type="date" id="tglCall" name="tglCall" required onclick="try{this.showPicker();}catch(e){}" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
                             </div>
                         </div>
 
@@ -127,7 +132,7 @@
                 </div>
             </div>
 
-            <!-- SISI KANAN: Formulir Checklist Kualitas -->
+            <!-- SISI KANAN: Formulir Checklist -->
             <div class="w-full lg:w-8/12">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-8">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
@@ -138,7 +143,6 @@
                 </div>
             </div>
             
-            <!-- Mobile Scoreboard -->
             <div class="block lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
                 <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
                     <div>
@@ -151,44 +155,38 @@
         </form>
     </div>
 
-    <!-- WRAPPER HALAMAN REGISTRASI DATA AGENT (BARU) -->
+    <!-- WRAPPER HALAMAN REGISTRASI DATA AGENT -->
     <div id="pageAgent" class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 hidden-tab animate-fade-up">
         <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden">
             <div class="bg-slate-900 p-6 sm:p-8 text-center">
                 <div class="w-16 h-16 bg-white/10 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4 border border-white/10">👨‍💻</div>
                 <h2 class="text-xl sm:text-2xl font-bold text-white">Registrasi Data Agent Baru</h2>
-                <p class="text-sm text-slate-400 mt-2">Tambahkan agent ke dalam master data agar muncul di rekomendasi pencarian (ICRM) formulir QC.</p>
+                <p class="text-sm text-slate-400 mt-2">Tambahkan agent ke dalam master data agar muncul di pencarian formulir QC.</p>
             </div>
             
             <form id="agentForm" onsubmit="submitFormAgent(event)" class="p-6 sm:p-8 space-y-5">
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Lengkap Agent</label>
-                    <input type="text" id="agentNamaLengkap" name="namaLengkap" required placeholder="Contoh: Alfi Salim" 
-                        class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
+                    <input type="text" id="agentNamaLengkap" name="namaLengkap" required placeholder="Contoh: Alfi Salim" class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Akun ICRM <span class="text-rose-500">*</span></label>
-                    <input type="text" id="agentNamaICRM" name="namaICRM" required placeholder="Contoh: alfi.salim_icrm" 
-                        class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-indigo-700">
-                    <p class="text-[11px] text-slate-400 mt-1.5">Ini adalah nama yang akan dijadikan acuan rekomendasi pencarian di Formulir QC.</p>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nomor Telepon</label>
-                    <input type="tel" id="agentTelp" name="noTelp" required placeholder="Contoh: 081234567890" 
-                        class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
+                    <input type="text" id="agentNamaICRM" name="namaICRM" required placeholder="Contoh: alfi.salim_icrm" class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-indigo-700">
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">KP (Kantor Perwakilan)</label>
-                        <input type="text" id="agentKP" name="kp" required placeholder="Contoh: JAKARTA SELATAN" 
-                            class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nomor Telepon</label>
+                        <input type="tel" id="agentTelp" name="noTelp" required placeholder="Contoh: 081234567890" class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
                     </div>
+                    <!-- KP SUDAH DIHILANGKAN, HANYA ADA REGION -->
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Region</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Region SBU</label>
                         <select id="agentRegion" name="region" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium text-slate-700">
                             <option value="" disabled selected>Pilih Region...</option>
-                            <option value="JBB">JBB</option><option value="JBT">JBT</option><option value="JBTG">JBTG</option>
-                            <option value="JKB">JKB</option><option value="KAL">KAL</option><option value="BNT">BNT</option>
+                            <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
+                            <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
+                            <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option>
+                            <option value="SIBT">SIBT</option>
                         </select>
                     </div>
                 </div>
@@ -203,15 +201,14 @@
     </div>
 
     <script>
-        // GANTI DENGAN URL WEB APP GOOGLE SCRIPT ANDA YANG BARU
+        // MASUKKAN URL GOOGLE APPS SCRIPT ANDA
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0XtgHtB39wa55OwveCf92ozCo1Vc_B76_5rM9DkwfMl6oL_MNJla-Vwz8yp8RDt-/exec"; 
 
         // Navigasi Tab
         function switchTab(tab) {
-            const pageQC = document.getElementById('pageQC');
-            const pageAgent = document.getElementById('pageAgent');
-            const btnQC = document.getElementById('btnTabQC'); const btnQCMob = document.getElementById('btnTabQCMob');
-            const btnAg = document.getElementById('btnTabAgent'); const btnAgMob = document.getElementById('btnTabAgentMob');
+            const pageQC = document.getElementById('pageQC'), pageAgent = document.getElementById('pageAgent');
+            const btnQC = document.getElementById('btnTabQC'), btnQCMob = document.getElementById('btnTabQCMob');
+            const btnAg = document.getElementById('btnTabAgent'), btnAgMob = document.getElementById('btnTabAgentMob');
 
             const actDesk = "px-4 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all";
             const inactDesk = "px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all";
@@ -229,17 +226,22 @@
             }
         }
 
-        // Fitur Autocomplete: Tarik Data ICRM saat web dimuat
+        // Variabel penampung data agent global
+        let masterAgentData = [];
+
+        // Tarik Data ICRM saat web dimuat
         window.addEventListener('DOMContentLoaded', () => {
-            fetch(SCRIPT_URL) // Memanggil doGet()
+            fetch(SCRIPT_URL)
                 .then(response => response.json())
                 .then(result => {
                     if (result.status === "sukses" && result.data) {
+                        masterAgentData = result.data; // Simpan data di variabel
                         const datalist = document.getElementById('icrmList');
-                        datalist.innerHTML = ""; // Bersihkan list
-                        result.data.forEach(icrmName => {
+                        datalist.innerHTML = "";
+                        
+                        masterAgentData.forEach(agent => {
                             const option = document.createElement('option');
-                            option.value = icrmName;
+                            option.value = agent.namaICRM;
                             datalist.appendChild(option);
                         });
                         document.getElementById('agentSyncStatus').classList.remove('hidden');
@@ -247,6 +249,16 @@
                 })
                 .catch(err => console.error("Gagal menarik daftar agen: ", err));
         });
+
+        // FUNGSI AUTOFILL REGION
+        function autoFillRegion(inputValue) {
+            // Cari data agen yang nama ICRM-nya cocok persis dengan yang diketik
+            const foundAgent = masterAgentData.find(agent => agent.namaICRM === inputValue);
+            if (foundAgent && foundAgent.region) {
+                // Setel kolom region sesuai database
+                document.getElementById('regionQC').value = foundAgent.region;
+            }
+        }
 
         // Generate Checklist Mandatori
         const qcParameters = [
@@ -268,26 +280,19 @@
             let optionsHtml = '';
             param.options.forEach((opt, i) => {
                 const radioClass = opt.val === 0 ? 'val-0' : (opt.class || 'val-full');
-                optionsHtml += `
-                    <div class="flex-1 radio-btn-group">
+                optionsHtml += `<div class="flex-1 radio-btn-group">
                         <input type="radio" id="${param.id}_opt${i}" name="${param.id}" value="${opt.val}" class="${radioClass}" required onchange="calculateScore()">
-                        <label for="${param.id}_opt${i}" class="block w-full text-center py-2.5 px-2 rounded-xl text-[12px] sm:text-[13px] font-bold select-none h-full flex items-center justify-center leading-tight">
-                            ${opt.label}
-                        </label>
-                    </div>
-                `;
+                        <label for="${param.id}_opt${i}" class="block w-full text-center py-2.5 px-2 rounded-xl text-[12px] sm:text-[13px] font-bold select-none h-full flex items-center justify-center leading-tight">${opt.label}</label>
+                    </div>`;
             });
-            container.innerHTML += `
-                <div class="p-3 sm:p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+            container.innerHTML += `<div class="p-3 sm:p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                         <div class="sm:w-1/2">
                             <h3 class="text-[13px] sm:text-sm font-bold text-slate-800">${param.title}</h3>
                             <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">${param.desc}</p>
                         </div>
                         <div class="sm:w-1/2 flex gap-1.5 sm:gap-2">${optionsHtml}</div>
-                    </div>
-                </div>
-            `;
+                    </div></div>`;
         });
 
         function calculateScore() {
@@ -318,23 +323,18 @@
         // Submit Form QC
         function submitFormQC(event) {
             event.preventDefault();
-            const btnDesk = document.getElementById('btnSubmitDesk');
-            const btnMob = document.getElementById('btnSubmitMob');
-            
+            const btnDesk = document.getElementById('btnSubmitDesk'), btnMob = document.getElementById('btnSubmitMob');
             const originalText = btnDesk.innerHTML;
+            
             btnDesk.innerHTML = "⏳ Mengirim..."; btnMob.innerHTML = "⏳ Mengirim...";
             btnDesk.disabled = true; btnMob.disabled = true;
 
             const formData = new FormData(event.target);
             const dataToSubmit = Object.fromEntries(formData.entries());
-            dataToSubmit.action = "inputQC"; // Penanda untuk Google Script
+            dataToSubmit.action = "inputQC"; 
             dataToSubmit.totalSkor = document.getElementById('scoreTotalDesk').innerText;
 
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                body: JSON.stringify(dataToSubmit),
-                headers: { "Content-Type": "text/plain;charset=utf-8" }
-            })
+            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataToSubmit), headers: { "Content-Type": "text/plain;charset=utf-8" } })
             .then(res => res.json())
             .then(result => {
                 if (result.status === "sukses") {
@@ -349,38 +349,28 @@
             });
         }
 
-        // Submit Form Data Agent Baru
+        // Submit Form Data Agent
         function submitFormAgent(event) {
             event.preventDefault();
             const btn = document.getElementById('btnSubmitAgent');
-            
             const originalText = btn.innerHTML;
-            btn.innerHTML = "⏳ Menyimpan Data...";
-            btn.disabled = true;
+            
+            btn.innerHTML = "⏳ Menyimpan Data..."; btn.disabled = true;
 
             const formData = new FormData(event.target);
             const dataToSubmit = Object.fromEntries(formData.entries());
-            dataToSubmit.action = "inputAgent"; // Penanda untuk Google Script
+            dataToSubmit.action = "inputAgent";
 
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                body: JSON.stringify(dataToSubmit),
-                headers: { "Content-Type": "text/plain;charset=utf-8" }
-            })
+            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataToSubmit), headers: { "Content-Type": "text/plain;charset=utf-8" } })
             .then(res => res.json())
             .then(result => {
                 if (result.status === "sukses") {
-                    alert(`✅ Data Agent ${dataToSubmit.namaICRM} berhasil diregistrasi! Nanti akan muncul di pencarian formulir QC saat web direfresh.`);
-                    event.target.reset();
-                    // Optional: refresh halaman otomatis untuk memperbarui list autocomplete
-                    window.location.reload(); 
+                    alert(`✅ Data Agent ${dataToSubmit.namaICRM} berhasil diregistrasi!`);
+                    event.target.reset(); window.location.reload(); 
                 } else alert("❌ Gagal: " + result.error);
             })
             .catch(err => alert("❌ Terjadi kesalahan jaringan."))
-            .finally(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            });
+            .finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
         }
     </script>
 </body>
