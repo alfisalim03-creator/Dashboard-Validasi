@@ -289,66 +289,68 @@
         }
 
         // Simulasi Submit Data ke Server / Google Sheets
-        function submitForm(event) {
-            event.preventDefault(); // Mencegah reload halaman
-            
-            const btnDesk = document.getElementById('btnSubmitDesk');
-            const btnMob = document.getElementById('btnSubmitMob');
-            
-            // Ubah tombol jadi loading
-            const originalTextDesk = btnDesk.innerHTML;
-            btnDesk.innerHTML = "Menyimpan Data...";
-            btnMob.innerHTML = "Menyimpan...";
-            btnDesk.disabled = true;
-            btnMob.disabled = true;
+        // Simulasi Submit Data ke Server / Google Sheets
+function submitForm(event) {
+    event.preventDefault(); // Mencegah reload halaman
+    
+    // GANTI URL DI BAWAH INI DENGAN URL APLIKASI WEB (APPS SCRIPT) YANG ANDA SALIN DI LANGKAH 3
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0XtgHtB39wa55OwveCf92ozCo1Vc_B76_5rM9DkwfMl6oL_MNJla-Vwz8yp8RDt-/exec"; 
+    
+    const btnDesk = document.getElementById('btnSubmitDesk');
+    const btnMob = document.getElementById('btnSubmitMob');
+    
+    // Ubah tombol jadi loading
+    const originalTextDesk = btnDesk.innerHTML;
+    btnDesk.innerHTML = "⏳ Menyimpan Data...";
+    btnMob.innerHTML = "⏳ Menyimpan...";
+    btnDesk.disabled = true;
+    btnMob.disabled = true;
 
-            // Kumpulkan Data (Persiapan untuk dikirim ke Google Apps Script)
-            const formData = new FormData(event.target);
-            const dataToSubmit = {
-                idPermohonan: document.getElementById('idPermohonan').value,
-                namaAgent: document.getElementById('namaAgent').value,
-                namaQC: document.getElementById('namaQC').value,
-                region: document.getElementById('region').value,
-                tglCall: document.getElementById('tglCall').value,
-                namaPemohon: document.getElementById('namaPemohon').value,
-                nomorKontak: document.getElementById('nomorKontak').value,
-                // Mengambil nilai skor
-                q1: formData.get('q1'), q2: formData.get('q2'), q3: formData.get('q3'),
-                q4: formData.get('q4'), q5: formData.get('q5'), q6: formData.get('q6'),
-                q7: formData.get('q7'), q8: formData.get('q8'), q8_1: formData.get('q8_1'),
-                q9: formData.get('q9'), q10: formData.get('q10'),
-                totalSkor: document.getElementById('scoreTotalDesk').innerText
-            };
+    // Kumpulkan Data dari form
+    const formData = new FormData(event.target);
+    const dataToSubmit = {
+        idPermohonan: document.getElementById('idPermohonan').value,
+        namaAgent: document.getElementById('namaAgent').value,
+        namaQC: document.getElementById('namaQC').value,
+        region: document.getElementById('region').value,
+        tglCall: document.getElementById('tglCall').value,
+        namaPemohon: document.getElementById('namaPemohon').value,
+        nomorKontak: document.getElementById('nomorKontak').value,
+        q1: formData.get('q1'), q2: formData.get('q2'), q3: formData.get('q3'),
+        q4: formData.get('q4'), q5: formData.get('q5'), q6: formData.get('q6'),
+        q7: formData.get('q7'), q8: formData.get('q8'), q8_1: formData.get('q8_1'),
+        q9: formData.get('q9'), q10: formData.get('q10'),
+        totalSkor: document.getElementById('scoreTotalDesk').innerText
+    };
 
-            console.log("Data siap kirim ke Spreadsheet:", dataToSubmit);
-
-            // Simulasi proses API (Delay 1.5 detik)
-            setTimeout(() => {
-                alert(`✅ Berhasil! Data Penilaian Agent [${dataToSubmit.namaAgent}] dengan skor ${dataToSubmit.totalSkor}/85 telah tersimpan.`);
-                
-                // Reset form setelah berhasil
-                event.target.reset();
-                calculateScore(); // reset skor UI
-                
-                // Kembalikan tombol
-                btnDesk.innerHTML = originalTextDesk;
-                btnMob.innerHTML = "Kirim Penilaian";
-                btnDesk.disabled = false;
-                btnMob.disabled = false;
-            }, 1500);
-                       
-            fetch("URL_GOOGLE_APPS_SCRIPT_ANDA", {
-                method: "POST",
-                body: JSON.stringify(dataToSubmit)
-            }).then(res => res.json())
-            .then(data => {
-                alert("Data Tersimpan!");
-                event.target.reset();
-            }).catch(err => {
-                alert("Gagal menyimpan data.");
-            });
-            */
+    // Proses pengiriman data menggunakan Fetch API
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(dataToSubmit),
+        headers: { "Content-Type": "text/plain;charset=utf-8" } // Menggunakan text/plain untuk melewati aturan CORS Google Script
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === "sukses") {
+            alert(`✅ Berhasil! Data Penilaian Agent [${dataToSubmit.namaAgent}] dengan skor ${dataToSubmit.totalSkor}/85 telah tersimpan.`);
+            event.target.reset(); // Kosongkan form
+            calculateScore(); // Reset grafik nilai UI
+        } else {
+            alert("❌ Gagal menyimpan data: " + result.error);
         }
+    })
+    .catch(error => {
+        alert("❌ Terjadi kesalahan jaringan. Gagal mengirim data.");
+        console.error(error);
+    })
+    .finally(() => {
+        // Kembalikan tombol ke keadaan semula baik sukses maupun gagal
+        btnDesk.innerHTML = originalTextDesk;
+        btnMob.innerHTML = "Kirim Penilaian";
+        btnDesk.disabled = false;
+        btnMob.disabled = false;
+    });
+}
     </script>
 </body>
 </html>
