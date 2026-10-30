@@ -1,782 +1,782 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal QC Validasi & Laporan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tambahkan Chart.js untuk menampilkan grafik tren -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; }
-        
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-up { animation: fadeUp 0.45s cubic-bezier(.22,1,.36,1) backwards; }
-        html { scroll-behavior: smooth; }
-        @keyframes pop { 0% { transform: scale(.92); opacity: .6; } 60% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes toastIn { from { opacity: 0; transform: translateX(24px) scale(.96); } to { opacity: 1; transform: translateX(0) scale(1); } }
-        @keyframes toastOut { to { opacity: 0; transform: translateX(24px); } }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal QC Validasi & Laporan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tambahkan Chart.js untuk menampilkan grafik tren -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; }
+        
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-up { animation: fadeUp 0.45s cubic-bezier(.22,1,.36,1) backwards; }
+        html { scroll-behavior: smooth; }
+        @keyframes pop { 0% { transform: scale(.92); opacity: .6; } 60% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(24px) scale(.96); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        @keyframes toastOut { to { opacity: 0; transform: translateX(24px); } }
 
-        button { transition: transform .15s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease; }
-        button:not(:disabled):active { transform: scale(.97); }
-        button:disabled { opacity: .75; cursor: not-allowed; }
-        input, select { transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
-        .radio-btn-group label:hover { border-color: #a5b4fc; }
-        .radio-btn-group label:active { transform: scale(.95); }
-        .radio-btn-group input[type="radio"]:checked + label { animation: pop .3s ease; }
-        #checklistContainer .qc-item { transition: background-color .25s ease, border-color .3s ease; }
-        #checklistContainer .qc-item.answered { border-color: #c7d2fe; }
-        #checklistContainer .qc-item.flagged { border-color: #fda4af; background-color: #fff1f2; }
-        .accordion-content.note-accordion.open { max-height: 120px; }
-        #scoreBarDesk { transition: width .6s cubic-bezier(.4,0,.2,1), background-color .4s ease; }
-        #scoreStatusDesk { display: inline-block; }
-        #scoreStatusDesk.pop, #agentSyncStatus { animation: pop .35s ease; }
-        .spinner { display: inline-block; width: 14px; height: 14px; margin-right: 8px; vertical-align: -2px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
-        .toast { display: flex; align-items: center; gap: 10px; max-width: 320px; padding: 12px 16px; border-radius: 12px; background: #0f172a; color: #fff; font-size: 13px; font-weight: 600; border-left: 4px solid #10b981; box-shadow: 0 10px 25px -5px rgba(15,23,42,.35); animation: toastIn .35s cubic-bezier(.22,1,.36,1); }
-        .toast.error { border-left-color: #f43f5e; }
-        .toast.out { animation: toastOut .3s ease forwards; }
-        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
-        
-        .radio-btn-group input[type="radio"] { display: none; }
-        .radio-btn-group label { cursor: pointer; transition: all 0.2s ease; border: 1px solid #e2e8f0; background-color: white; color: #64748b; }
-        .radio-btn-group input[type="radio"]:checked + label { background-color: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); }
-        .radio-btn-group input[type="radio"].val-0:checked + label { background-color: #e11d48; border-color: #e11d48; box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.2); }
-        .radio-btn-group input[type="radio"].val-mid:checked + label { background-color: #0ea5e9; border-color: #0ea5e9; box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.2); }
-        
-        .accordion-content { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s cubic-bezier(.4,0,.2,1), opacity 0.3s ease; }
-        .accordion-content.open { max-height: 1000px; opacity: 1; }
-        
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .hidden-tab { display: none !important; }
-    </style>
+        button { transition: transform .15s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease; }
+        button:not(:disabled):active { transform: scale(.97); }
+        button:disabled { opacity: .75; cursor: not-allowed; }
+        input, select { transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
+        .radio-btn-group label:hover { border-color: #a5b4fc; }
+        .radio-btn-group label:active { transform: scale(.95); }
+        .radio-btn-group input[type="radio"]:checked + label { animation: pop .3s ease; }
+        #checklistContainer .qc-item { transition: background-color .25s ease, border-color .3s ease; }
+        #checklistContainer .qc-item.answered { border-color: #c7d2fe; }
+        #checklistContainer .qc-item.flagged { border-color: #fda4af; background-color: #fff1f2; }
+        .accordion-content.note-accordion.open { max-height: 120px; }
+        #scoreBarDesk { transition: width .6s cubic-bezier(.4,0,.2,1), background-color .4s ease; }
+        #scoreStatusDesk { display: inline-block; }
+        #scoreStatusDesk.pop, #agentSyncStatus { animation: pop .35s ease; }
+        .spinner { display: inline-block; width: 14px; height: 14px; margin-right: 8px; vertical-align: -2px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+        .toast { display: flex; align-items: center; gap: 10px; max-width: 320px; padding: 12px 16px; border-radius: 12px; background: #0f172a; color: #fff; font-size: 13px; font-weight: 600; border-left: 4px solid #10b981; box-shadow: 0 10px 25px -5px rgba(15,23,42,.35); animation: toastIn .35s cubic-bezier(.22,1,.36,1); }
+        .toast.error { border-left-color: #f43f5e; }
+        .toast.out { animation: toastOut .3s ease forwards; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+        
+        .radio-btn-group input[type="radio"] { display: none; }
+        .radio-btn-group label { cursor: pointer; transition: all 0.2s ease; border: 1px solid #e2e8f0; background-color: white; color: #64748b; }
+        .radio-btn-group input[type="radio"]:checked + label { background-color: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); }
+        .radio-btn-group input[type="radio"].val-0:checked + label { background-color: #e11d48; border-color: #e11d48; box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.2); }
+        .radio-btn-group input[type="radio"].val-mid:checked + label { background-color: #0ea5e9; border-color: #0ea5e9; box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.2); }
+        
+        .accordion-content { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s cubic-bezier(.4,0,.2,1), opacity 0.3s ease; }
+        .accordion-content.open { max-height: 1000px; opacity: 1; }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .hidden-tab { display: none !important; }
+    </style>
 </head>
 <body class="text-slate-800 pb-20">
 
-    <!-- Navbar & Tab Switcher -->
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-lg">QC</div>
-                <div><h1 class="font-bold text-slate-800 leading-tight">Portal QC Validasi</h1><p class="text-[11px] text-slate-500 font-medium">Monitoring & Analitik</p></div>
-            </div>
-            <!-- Desktop Tabs -->
-            <div class="hidden sm:flex bg-slate-100 p-1 rounded-xl">
-                <button onclick="switchTab('qc')" id="btnTabQC" class="px-4 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">Form QC</button>
-                <button onclick="switchTab('agent')" id="btnTabAgent" class="px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Reg Agent</button>
-                <button onclick="switchTab('dashboard')" id="btnTabDash" class="px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Laporan QC</button>
-            </div>
-        </div>
-        <!-- Mobile Tabs -->
-        <div class="sm:hidden flex bg-slate-100 p-1 m-2 rounded-xl overflow-x-auto">
-            <button onclick="switchTab('qc')" id="btnTabQCMob" class="flex-none px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">Form QC</button>
-            <button onclick="switchTab('agent')" id="btnTabAgentMob" class="flex-none px-4 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all">Reg Agent</button>
-            <button onclick="switchTab('dashboard')" id="btnTabDashMob" class="flex-none px-4 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all">Laporan</button>
-        </div>
-    </nav>
+    <!-- Navbar & Tab Switcher -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-lg">QC</div>
+                <div><h1 class="font-bold text-slate-800 leading-tight">Portal QC Validasi</h1><p class="text-[11px] text-slate-500 font-medium">Monitoring & Analitik</p></div>
+            </div>
+            <!-- Desktop Tabs -->
+            <div class="hidden sm:flex bg-slate-100 p-1 rounded-xl">
+                <button onclick="switchTab('qc')" id="btnTabQC" class="px-4 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">Form QC</button>
+                <button onclick="switchTab('agent')" id="btnTabAgent" class="px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Reg Agent</button>
+                <button onclick="switchTab('dashboard')" id="btnTabDash" class="px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Laporan QC</button>
+            </div>
+        </div>
+        <!-- Mobile Tabs -->
+        <div class="sm:hidden flex bg-slate-100 p-1 m-2 rounded-xl overflow-x-auto">
+            <button onclick="switchTab('qc')" id="btnTabQCMob" class="flex-none px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">Form QC</button>
+            <button onclick="switchTab('agent')" id="btnTabAgentMob" class="flex-none px-4 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all">Reg Agent</button>
+            <button onclick="switchTab('dashboard')" id="btnTabDashMob" class="flex-none px-4 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all">Laporan</button>
+        </div>
+    </nav>
 
-    <!-- TAB 1: HALAMAN QC VALIDASI -->
-    <div id="pageQC" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 animate-fade-up">
-        <!-- Struktur Tab QC Tetap Sama Seperti Sebelumnya... -->
-        <form id="qcForm" onsubmit="submitFormQC(event)" class="flex flex-col lg:flex-row gap-6">
-            <div class="w-full lg:w-4/12 flex flex-col gap-6">
-                <!-- Form Identitas -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-6">
-                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 pb-3 border-b border-slate-100 flex items-center justify-between">
-                        <span>📋 Data Identitas</span><span id="agentSyncStatus" class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 hidden">✅ Sinkron</span>
-                    </h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Agent ICRM</label>
-                            <input type="text" id="namaAgent" name="namaAgent" list="icrmList" required autocomplete="off" placeholder="Ketik pencarian..." 
-                                class="w-full px-3.5 py-2.5 text-sm bg-indigo-50/50 border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all font-bold text-indigo-700" oninput="autoFillRegion(this.value)">
-                            <datalist id="icrmList"></datalist>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">ID Permohonan</label>
-                            <input type="text" name="idPermohonan" required placeholder="Contoh: PRM-202610-001" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama QC</label>
-                            <select name="namaQC" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
-                                <option value="" disabled selected>Pilih Nama QC...</option>
-                                <option value="Mahmed Farissa">Mahmed Farissa</option>
-                                <option value="Nurul Fatima Assyahrul Hidayati">Nurul Fatima Assyahrul Hidayati</option>
-                                <option value="Agung Setiawan">Agung Setiawan</option>
-                            </select>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Region SBU</label>
-                                <select id="regionQC" name="region" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
-                                    <option value="" disabled selected>Pilih...</option>
-                                    <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
-                                    <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
-                                    <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option><option value="SIBT">SIBT</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tgl Call Agent</label>
-                                <input type="date" name="tglCall" required onclick="try{this.showPicker();}catch(e){}" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Pemohon</label>
-                            <input type="text" name="namaPemohon" required placeholder="Nama pelanggan..." class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nomor Dihubungi</label>
-                            <input type="tel" name="nomorKontak" required placeholder="Contoh: 0812..." class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
-                        </div>
-                    </div>
-                </div>
+    <!-- TAB 1: HALAMAN QC VALIDASI -->
+    <div id="pageQC" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 animate-fade-up">
+        <!-- Struktur Tab QC Tetap Sama Seperti Sebelumnya... -->
+        <form id="qcForm" onsubmit="submitFormQC(event)" class="flex flex-col lg:flex-row gap-6">
+            <div class="w-full lg:w-4/12 flex flex-col gap-6">
+                <!-- Form Identitas -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-6">
+                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 pb-3 border-b border-slate-100 flex items-center justify-between">
+                        <span>📋 Data Identitas</span><span id="agentSyncStatus" class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 hidden">✅ Sinkron</span>
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Agent ICRM</label>
+                            <input type="text" id="namaAgent" name="namaAgent" list="icrmList" required autocomplete="off" placeholder="Ketik pencarian..." 
+                                class="w-full px-3.5 py-2.5 text-sm bg-indigo-50/50 border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all font-bold text-indigo-700" oninput="autoFillRegion(this.value)">
+                            <datalist id="icrmList"></datalist>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">ID Permohonan</label>
+                            <input type="text" name="idPermohonan" required placeholder="Contoh: PRM-202610-001" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama QC</label>
+                            <select name="namaQC" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
+                                <option value="" disabled selected>Pilih Nama QC...</option>
+                                <option value="Mahmed Farissa">Mahmed Farissa</option>
+                                <option value="Nurul Fatima Assyahrul Hidayati">Nurul Fatima Assyahrul Hidayati</option>
+                                <option value="Agung Setiawan">Agung Setiawan</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Region SBU</label>
+                                <select id="regionQC" name="region" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
+                                    <option value="" disabled selected>Pilih...</option>
+                                    <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
+                                    <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
+                                    <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option><option value="SIBT">SIBT</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tgl Call Agent</label>
+                                <input type="date" name="tglCall" required onclick="try{this.showPicker();}catch(e){}" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Pemohon</label>
+                            <input type="text" name="namaPemohon" required placeholder="Nama pelanggan..." class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nomor Dihubungi</label>
+                            <input type="tel" name="nomorKontak" required placeholder="Contoh: 0812..." class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
+                        </div>
+                    </div>
+                </div>
 
-                <!-- Scoreboard Desktop -->
-                <div class="bg-slate-900 rounded-2xl shadow-xl border border-slate-800 p-5 lg:p-6 text-white sticky top-24 hidden lg:block">
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Skor Kepatuhan Agent</p>
-                    <div class="flex items-end gap-2 mb-4"><h2 class="text-5xl font-black" id="scoreTotalDesk">0</h2><span class="text-lg font-medium text-slate-400 mb-1.5">/ 100</span></div>
-                    <div class="w-full bg-slate-800 rounded-full h-3 mb-2"><div id="scoreBarDesk" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                    <div class="flex justify-between items-center text-xs font-semibold text-slate-400 mb-6"><span>Persentase: <span id="scorePctDesk" class="text-white">0%</span></span><span id="scoreStatusDesk" class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Menunggu...</span></div>
-                    <button type="submit" id="btnSubmitDesk" class="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-[0_0_15px_rgba(79,70,229,0.3)]">Kirim Penilaian QC</button>
-                </div>
-            </div>
+                <!-- Scoreboard Desktop -->
+                <div class="bg-slate-900 rounded-2xl shadow-xl border border-slate-800 p-5 lg:p-6 text-white sticky top-24 hidden lg:block">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Skor Kepatuhan Agent</p>
+                    <div class="flex items-end gap-2 mb-4"><h2 class="text-5xl font-black" id="scoreTotalDesk">0</h2><span class="text-lg font-medium text-slate-400 mb-1.5">/ 100</span></div>
+                    <div class="w-full bg-slate-800 rounded-full h-3 mb-2"><div id="scoreBarDesk" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div></div>
+                    <div class="flex justify-between items-center text-xs font-semibold text-slate-400 mb-6"><span>Persentase: <span id="scorePctDesk" class="text-white">0%</span></span><span id="scoreStatusDesk" class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Menunggu...</span></div>
+                    <button type="submit" id="btnSubmitDesk" class="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-[0_0_15px_rgba(79,70,229,0.3)]">Kirim Penilaian QC</button>
+                </div>
+            </div>
 
-            <!-- Form Checklist Mandatori -->
-            <div class="w-full lg:w-8/12">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-8">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">✅ 10 Parameter Mandatori</h2>
-                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">Max: 100 Poin</span>
-                    </div>
-                    <div id="checklistContainer" class="space-y-4"></div>
-                </div>
-            </div>
-            
-            <div class="block lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
-                <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Total Skor</p><p class="text-xl font-black text-slate-800"><span id="scoreTotalMob">0</span><span class="text-xs text-slate-400">/100</span></p></div>
-                    <button type="submit" id="btnSubmitMob" class="flex-1 py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-sm">Kirim QC</button>
-                </div>
-            </div>
-        </form>
-    </div>
+            <!-- Form Checklist Mandatori -->
+            <div class="w-full lg:w-8/12">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-8">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">✅ 10 Parameter Mandatori</h2>
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">Max: 100 Poin</span>
+                    </div>
+                    <div id="checklistContainer" class="space-y-4"></div>
+                </div>
+            </div>
+            
+            <div class="block lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
+                <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Total Skor</p><p class="text-xl font-black text-slate-800"><span id="scoreTotalMob">0</span><span class="text-xs text-slate-400">/100</span></p></div>
+                    <button type="submit" id="btnSubmitMob" class="flex-1 py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-sm">Kirim QC</button>
+                </div>
+            </div>
+        </form>
+    </div>
 
-    <!-- TAB 2: REGISTRASI AGENT -->
-    <div id="pageAgent" class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 hidden-tab animate-fade-up">
-        <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden">
-            <div class="bg-slate-900 p-6 sm:p-8 text-center"><h2 class="text-xl font-bold text-white">Registrasi Data Agent Baru</h2></div>
-            <form id="agentForm" onsubmit="submitFormAgent(event)" class="p-6 sm:p-8 space-y-5">
-                <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Lengkap Agent</label><input type="text" name="namaLengkap" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium"></div>
-                <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Akun ICRM *</label><input type="text" name="namaICRM" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold text-indigo-700"></div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Nomor Telepon</label><input type="tel" name="noTelp" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium"></div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Region SBU</label>
-                        <select name="region" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-700">
-                            <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
-                            <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
-                            <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option><option value="SIBT">SIBT</option>
-                        </select>
-                    </div>
-                </div>
-                <button type="submit" id="btnSubmitAgent" class="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-lg mt-4">Simpan Data Agent</button>
-            </form>
-        </div>
-    </div>
+    <!-- TAB 2: REGISTRASI AGENT -->
+    <div id="pageAgent" class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 hidden-tab animate-fade-up">
+        <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden">
+            <div class="bg-slate-900 p-6 sm:p-8 text-center"><h2 class="text-xl font-bold text-white">Registrasi Data Agent Baru</h2></div>
+            <form id="agentForm" onsubmit="submitFormAgent(event)" class="p-6 sm:p-8 space-y-5">
+                <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Lengkap Agent</label><input type="text" name="namaLengkap" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium"></div>
+                <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Akun ICRM *</label><input type="text" name="namaICRM" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold text-indigo-700"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Nomor Telepon</label><input type="tel" name="noTelp" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium"></div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Region SBU</label>
+                        <select name="region" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-700">
+                            <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
+                            <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
+                            <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option><option value="SIBT">SIBT</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" id="btnSubmitAgent" class="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-lg mt-4">Simpan Data Agent</button>
+            </form>
+        </div>
+    </div>
 
-    <!-- TAB 3: DASHBOARD & LAPORAN -->
-    <div id="pageDashboard" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 hidden-tab animate-fade-up pb-10">
-        
-        <!-- Dropdown Pemilihan Jenis Laporan -->
-        <div class="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-            <div>
-                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">📊 Analitik & Laporan</h2>
-                <p class="text-[11px] text-slate-500 mt-1">Pilih jenis laporan yang ingin ditampilkan di bawah.</p>
-            </div>
-            <select id="reportTypeSelector" onchange="switchReportView()" class="w-full sm:w-auto px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 cursor-pointer">
-                <option value="qc">Laporan Kinerja Tim QC</option>
-                <option value="validasi">Laporan Validasi Agent</option>
-            </select>
-        </div>
+    <!-- TAB 3: DASHBOARD & LAPORAN -->
+    <div id="pageDashboard" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 hidden-tab animate-fade-up pb-10">
+        
+        <!-- Dropdown Pemilihan Jenis Laporan -->
+        <div class="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+            <div>
+                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">📊 Analitik & Laporan</h2>
+                <p class="text-[11px] text-slate-500 mt-1">Pilih jenis laporan yang ingin ditampilkan di bawah.</p>
+            </div>
+            <select id="reportTypeSelector" onchange="switchReportView()" class="w-full sm:w-auto px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 cursor-pointer">
+                <option value="qc">Laporan Kinerja Tim QC</option>
+                <option value="validasi">Laporan Validasi Agent</option>
+            </select>
+        </div>
 
-        <!-- ============================================== -->
-        <!-- VIEW 1: LAPORAN KINERJA TIM QC                 -->
-        <!-- ============================================== -->
-        <div id="viewReportQC" class="space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Leaderboard QC -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">🥇 Leaderboard Kinerja Tim QC</h3>
-                    <div class="overflow-x-auto flex-1">
-                        <table class="w-full text-left text-sm">
-                            <thead class="text-xs text-slate-500 bg-slate-50 uppercase"><tr><th class="px-3 py-2">Peringkat</th><th class="px-3 py-2">Nama Petugas QC</th><th class="px-3 py-2 text-center">Total Validasi</th></tr></thead>
-                            <tbody id="tblRankingQC" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <!-- Tren Harian QC (Chart.js) -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">📈 Tren Harian Agent yang di QC (Bulan Ini)</h3>
-                    <div class="relative flex-1 w-full" style="min-height: 200px;">
-                        <canvas id="chartTrenQC"></canvas>
-                    </div>
-                </div>
-            </div>
+        <!-- ============================================== -->
+        <!-- VIEW 1: LAPORAN KINERJA TIM QC                 -->
+        <!-- ============================================== -->
+        <div id="viewReportQC" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Leaderboard QC -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">🥇 Leaderboard Kinerja Tim QC</h3>
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left text-sm">
+                            <thead class="text-xs text-slate-500 bg-slate-50 uppercase"><tr><th class="px-3 py-2">Peringkat</th><th class="px-3 py-2">Nama Petugas QC</th><th class="px-3 py-2 text-center">Total Validasi</th></tr></thead>
+                            <tbody id="tblRankingQC" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Tren Harian QC (Chart.js) -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">📈 Tren Harian Agent yang di QC (Bulan Ini)</h3>
+                    <div class="relative flex-1 w-full" style="min-height: 200px;">
+                        <canvas id="chartTrenQC"></canvas>
+                    </div>
+                </div>
+            </div>
 
-            <!-- Kartu Laporan Detil (Termasuk Tanggal Call) -->
-            <div class="bg-white p-5 lg:p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">📑 Laporan Detil Harian QC</h3>
-                <div class="flex flex-col sm:flex-row gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl mb-6">
-                    <div class="flex-1">
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Pilih Nama QC</label>
-                        <select id="filterNamaQC" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg">
-                            <option value="Mahmed Farissa">Mahmed Farissa</option><option value="Nurul Fatima Assyahrul Hidayati">Nurul Fatima Assyahrul Hidayati</option><option value="Agung Setiawan">Agung Setiawan</option>
-                        </select>
-                    </div>
-                    <div class="flex-1">
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Pilih Bulan</label>
-                        <input type="month" id="filterBulanQC" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg cursor-pointer" onclick="try{this.showPicker();}catch(e){}">
-                    </div>
-                    <div class="sm:flex-none flex items-end">
-                        <button onclick="generateReport()" class="w-full sm:w-auto px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm transition-colors">Tampilkan Laporan</button>
-                    </div>
-                </div>
-                <div id="reportContainer" class="space-y-4"></div>
-            </div>
-        </div>
+            <!-- Kartu Laporan Detil (Termasuk Tanggal Call) -->
+            <div class="bg-white p-5 lg:p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">📑 Laporan Detil Harian QC</h3>
+                <div class="flex flex-col sm:flex-row gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl mb-6">
+                    <div class="flex-1">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Pilih Nama QC</label>
+                        <select id="filterNamaQC" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg">
+                            <option value="Mahmed Farissa">Mahmed Farissa</option><option value="Nurul Fatima Assyahrul Hidayati">Nurul Fatima Assyahrul Hidayati</option><option value="Agung Setiawan">Agung Setiawan</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Pilih Bulan</label>
+                        <input type="month" id="filterBulanQC" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg cursor-pointer" onclick="try{this.showPicker();}catch(e){}">
+                    </div>
+                    <div class="sm:flex-none flex items-end">
+                        <button onclick="generateReport()" class="w-full sm:w-auto px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm transition-colors">Tampilkan Laporan</button>
+                    </div>
+                </div>
+                <div id="reportContainer" class="space-y-4"></div>
+            </div>
+        </div>
 
-        <!-- ============================================== -->
-        <!-- VIEW 2: LAPORAN VALIDASI AGENT                 -->
-        <!-- ============================================== -->
-        <div id="viewReportValidasi" class="space-y-6 hidden">
-            <!-- Filter Laporan Validasi -->
-            <div class="flex flex-col sm:flex-row gap-3 p-4 bg-white shadow-sm border border-slate-100 rounded-xl">
-                <div class="flex-1">
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter Region SBU</label>
-                    <select id="filterRegionVal" onchange="renderValidasiReport()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer font-medium text-slate-700">
-                        <option value="ALL">Semua Region</option>
-                        <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
-                        <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
-                        <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option><option value="SIBT">SIBT</option>
-                    </select>
-                </div>
-                <div class="flex-1">
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter Periode</label>
-                    <select id="filterPeriodeValType" onchange="togglePeriodeValInput(); renderValidasiReport()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer font-medium text-slate-700 mb-2 sm:mb-0">
-                        <option value="all">Semua Periode</option>
-                        <option value="month">Bulan Spesifik</option>
-                    </select>
-                </div>
-                <div class="flex-1" id="boxBulanVal" style="display: none;">
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1 text-transparent hidden sm:block">_</label>
-                    <input type="month" id="filterBulanVal" onchange="renderValidasiReport()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer" onclick="try{this.showPicker();}catch(e){}">
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Ranking Agent (Filtered) -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">🏆 Top Ranking Validasi Agent</h3>
-                    <div class="overflow-x-auto flex-1">
-                        <table class="w-full text-left text-sm">
-                            <thead class="text-xs text-slate-500 bg-slate-50 uppercase"><tr><th class="px-3 py-2">Peringkat</th><th class="px-3 py-2">Nama Agent</th><th class="px-3 py-2 text-right">Rata-rata Skor</th></tr></thead>
-                            <tbody id="tblRankingAgent" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Chart Validasi: Tren Periode & Tren Region -->
-                <div class="flex flex-col gap-6">
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                        <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">📊 Tren Jumlah Validasi</h3>
-                        <p class="text-[10px] text-slate-400 mb-2" id="labelTrenValDesc">Menampilkan tren per bulan.</p>
-                        <div class="relative w-full" style="height: 180px;"><canvas id="chartTrenValidasi"></canvas></div>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                        <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">🗺️ Distribusi Validasi per Region</h3>
-                        <div class="relative w-full" style="height: 180px;"><canvas id="chartRegionValidasi"></canvas></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- ============================================== -->
+        <!-- VIEW 2: LAPORAN VALIDASI AGENT                 -->
+        <!-- ============================================== -->
+        <div id="viewReportValidasi" class="space-y-6 hidden">
+            <!-- Filter Laporan Validasi -->
+            <div class="flex flex-col sm:flex-row gap-3 p-4 bg-white shadow-sm border border-slate-100 rounded-xl">
+                <div class="flex-1">
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter Region SBU</label>
+                    <select id="filterRegionVal" onchange="renderValidasiReport()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer font-medium text-slate-700">
+                        <option value="ALL">Semua Region</option>
+                        <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
+                        <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
+                        <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option><option value="SIBT">SIBT</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter Periode</label>
+                    <select id="filterPeriodeValType" onchange="togglePeriodeValInput(); renderValidasiReport()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer font-medium text-slate-700 mb-2 sm:mb-0">
+                        <option value="all">Semua Periode</option>
+                        <option value="month">Bulan Spesifik</option>
+                    </select>
+                </div>
+                <div class="flex-1" id="boxBulanVal" style="display: none;">
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1 text-transparent hidden sm:block">_</label>
+                    <input type="month" id="filterBulanVal" onchange="renderValidasiReport()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer" onclick="try{this.showPicker();}catch(e){}">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Ranking Agent (Filtered) -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full">
+                    <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">🏆 Top Ranking Validasi Agent</h3>
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left text-sm">
+                            <thead class="text-xs text-slate-500 bg-slate-50 uppercase"><tr><th class="px-3 py-2">Peringkat</th><th class="px-3 py-2">Nama Agent</th><th class="px-3 py-2 text-right">Rata-rata Skor</th></tr></thead>
+                            <tbody id="tblRankingAgent" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Chart Validasi: Tren Periode & Tren Region -->
+                <div class="flex flex-col gap-6">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                        <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">📊 Tren Jumlah Validasi</h3>
+                        <p class="text-[10px] text-slate-400 mb-2" id="labelTrenValDesc">Menampilkan tren per bulan.</p>
+                        <div class="relative w-full" style="height: 180px;"><canvas id="chartTrenValidasi"></canvas></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                        <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">🗺️ Distribusi Validasi per Region</h3>
+                        <div class="relative w-full" style="height: 180px;"><canvas id="chartRegionValidasi"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    </div>
+    </div>
 
-    <div id="toastBox" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toastBox" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0XtgHtB39wa55OwveCf92ozCo1Vc_B76_5rM9DkwfMl6oL_MNJla-Vwz8yp8RDt-/exec"; 
-        const paramMax = { q1: 5, q2: 5, q3: 20, q4: 15, q5: 10, q6: 10, q7: 10, q8: 5, q8_1: 10, q9: 5, q10: 5 };
-        const questionMap = { q1: "Salam Pembuka", q2: "Konfirmasi Kesediaan", q3: "Verifikasi Data", q4: "Kesesuaian Edukasi", q5: "Pemilihan Kalimat", q6: "Kejelasan Ucapan", q7: "Etika Komunikasi", q8: "Pencatatan Hasil", q8_1: "Kesesuaian Pencatatan", q9: "Konfirmasi Pertanyaan", q10: "Salam Penutup" };
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0XtgHtB39wa55OwveCf92ozCo1Vc_B76_5rM9DkwfMl6oL_MNJla-Vwz8yp8RDt-/exec"; 
+        const paramMax = { q1: 5, q2: 5, q3: 20, q4: 15, q5: 10, q6: 10, q7: 10, q8: 5, q8_1: 10, q9: 5, q10: 5 };
+        const questionMap = { q1: "Salam Pembuka", q2: "Konfirmasi Kesediaan", q3: "Verifikasi Data", q4: "Kesesuaian Edukasi", q5: "Pemilihan Kalimat", q6: "Kejelasan Ucapan", q7: "Etika Komunikasi", q8: "Pencatatan Hasil", q8_1: "Kesesuaian Pencatatan", q9: "Konfirmasi Pertanyaan", q10: "Salam Penutup" };
 
-        let masterAgentData = []; 
-        let masterQCData = [];
-        
-        // Simpan instance chart global
-        let chartQC = null;
-        let chartTrenVal = null;
-        let chartRegionVal = null;
+        let masterAgentData = []; 
+        let masterQCData = [];
+        
+        // Simpan instance chart global
+        let chartQC = null;
+        let chartTrenVal = null;
+        let chartRegionVal = null;
 
-        // Navigasi Tab Utama
-        function switchTab(tab) {
-            const tabs = ['qc', 'agent', 'dashboard'];
-            tabs.forEach(t => {
-                const isMatch = (t === tab);
-                document.getElementById('page' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dashboard'))?.classList.toggle('hidden-tab', !isMatch);
-                if (document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash')))
-                    document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash')).className = isMatch ? "px-4 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all" : "px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all";
-                if (document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob'))
-                    document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob').className = isMatch ? "flex-none px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all" : "flex-none px-4 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all";
-            });
-            if(tab === 'dashboard') { switchReportView(); } // Render ulang saat masuk ke tab dashboard
-        }
+        // Navigasi Tab Utama
+        function switchTab(tab) {
+            const tabs = ['qc', 'agent', 'dashboard'];
+            tabs.forEach(t => {
+                const isMatch = (t === tab);
+                document.getElementById('page' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dashboard'))?.classList.toggle('hidden-tab', !isMatch);
+                if (document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash')))
+                    document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash')).className = isMatch ? "px-4 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all" : "px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all";
+                if (document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob'))
+                    document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob').className = isMatch ? "flex-none px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all" : "flex-none px-4 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all";
+            });
+            if(tab === 'dashboard') { switchReportView(); } // Render ulang saat masuk ke tab dashboard
+        }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const today = new Date(); 
-            const yyyyMm = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-            document.getElementById('filterBulanQC').value = yyyyMm;
-            document.getElementById('filterBulanVal').value = yyyyMm;
-            
-            fetch(SCRIPT_URL).then(r => r.json()).then(result => {
-                if (result.status === "sukses") {
-                    masterAgentData = result.dataAgent || [];
-                    const datalist = document.getElementById('icrmList'); datalist.innerHTML = "";
-                    masterAgentData.forEach(ag => { const o = document.createElement('option'); o.value = ag.namaICRM; datalist.appendChild(o); });
-                    document.getElementById('agentSyncStatus').classList.remove('hidden');
-                    
-                    masterQCData = result.dataQC || []; 
-                    if(!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
-                        switchReportView();
-                    }
-                }
-            }).catch(e => console.error(e));
-        });
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date(); 
+            const yyyyMm = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+            document.getElementById('filterBulanQC').value = yyyyMm;
+            document.getElementById('filterBulanVal').value = yyyyMm;
+            
+            fetch(SCRIPT_URL).then(r => r.json()).then(result => {
+                if (result.status === "sukses") {
+                    masterAgentData = result.dataAgent || [];
+                    const datalist = document.getElementById('icrmList'); datalist.innerHTML = "";
+                    masterAgentData.forEach(ag => { const o = document.createElement('option'); o.value = ag.namaICRM; datalist.appendChild(o); });
+                    document.getElementById('agentSyncStatus').classList.remove('hidden');
+                    
+                    masterQCData = result.dataQC || []; 
+                    if(!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
+                        switchReportView();
+                    }
+                }
+            }).catch(e => console.error(e));
+        });
 
-        // ==========================================
-        // FUNGSI NAVIGASI LAPORAN (QC / VALIDASI)
-        // ==========================================
-        function switchReportView() {
-            const type = document.getElementById('reportTypeSelector').value;
-            document.getElementById('viewReportQC').classList.toggle('hidden', type !== 'qc');
-            document.getElementById('viewReportValidasi').classList.toggle('hidden', type !== 'validasi');
-            
-            if(type === 'qc') {
-                processRankingsQC(); // Update Ranking Tim QC
-                generateReport();    // Update Detail Laporan Harian & Render Chart Tren QC
-            } else {
-                renderValidasiReport(); // Update Filter, Tabel Ranking Agent, dan Chart Laporan Validasi
-            }
-        }
+        // ==========================================
+        // FUNGSI NAVIGASI LAPORAN (QC / VALIDASI)
+        // ==========================================
+        function switchReportView() {
+            const type = document.getElementById('reportTypeSelector').value;
+            document.getElementById('viewReportQC').classList.toggle('hidden', type !== 'qc');
+            document.getElementById('viewReportValidasi').classList.toggle('hidden', type !== 'validasi');
+            
+            if(type === 'qc') {
+                processRankingsQC(); // Update Ranking Tim QC
+                generateReport();    // Update Detail Laporan Harian & Render Chart Tren QC
+            } else {
+                renderValidasiReport(); // Update Filter, Tabel Ranking Agent, dan Chart Laporan Validasi
+            }
+        }
 
-        function togglePeriodeValInput() {
-            const type = document.getElementById('filterPeriodeValType').value;
-            document.getElementById('boxBulanVal').style.display = (type === 'month') ? 'block' : 'none';
-        }
+        function togglePeriodeValInput() {
+            const type = document.getElementById('filterPeriodeValType').value;
+            document.getElementById('boxBulanVal').style.display = (type === 'month') ? 'block' : 'none';
+        }
 
-        // ==========================================
-        // PROSES DATA UNTUK VIEW LAPORAN QC
-        // ==========================================
-        function processRankingsQC() {
-            if (!masterQCData.length) return;
-            const qcStats = {};
-            masterQCData.forEach(row => {
-                qcStats[row.namaQC] = (qcStats[row.namaQC] || 0) + 1;
-            });
-            const qcRank = Object.keys(qcStats).map(n => ({ n, c: qcStats[n] })).sort((a, b) => b.c - a.c);
-            const tblQC = document.getElementById('tblRankingQC'); tblQC.innerHTML = "";
-            qcRank.forEach((qc, i) => tblQC.innerHTML += `<tr class="border-b border-slate-50"><td class="px-3 py-2 text-center">${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2 font-bold">${qc.n}</td><td class="px-3 py-2 text-center font-bold text-emerald-600">${qc.c} Laporan</td></tr>`);
-        }
+        // ==========================================
+        // PROSES DATA UNTUK VIEW LAPORAN QC
+        // ==========================================
+        function processRankingsQC() {
+            if (!masterQCData.length) return;
+            const qcStats = {};
+            masterQCData.forEach(row => {
+                qcStats[row.namaQC] = (qcStats[row.namaQC] || 0) + 1;
+            });
+            const qcRank = Object.keys(qcStats).map(n => ({ n, c: qcStats[n] })).sort((a, b) => b.c - a.c);
+            const tblQC = document.getElementById('tblRankingQC'); tblQC.innerHTML = "";
+            qcRank.forEach((qc, i) => tblQC.innerHTML += `<tr class="border-b border-slate-50"><td class="px-3 py-2 text-center">${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2 font-bold">${qc.n}</td><td class="px-3 py-2 text-center font-bold text-emerald-600">${qc.c} Laporan</td></tr>`);
+        }
 
-        // Fungsi Membangun Kartu Detail Laporan & Grafik Tren QC
-        function generateReport() {
-            const namaQCSelected = document.getElementById('filterNamaQC').value;
-            const bulanSelected = document.getElementById('filterBulanQC').value;
-            const container = document.getElementById('reportContainer');
-            if (!bulanSelected) { showToast('Pilih bulan terlebih dahulu.', 'error'); return; }
+        // Fungsi Membangun Kartu Detail Laporan & Grafik Tren QC
+        function generateReport() {
+            const namaQCSelected = document.getElementById('filterNamaQC').value;
+            const bulanSelected = document.getElementById('filterBulanQC').value;
+            const container = document.getElementById('reportContainer');
+            if (!bulanSelected) { showToast('Pilih bulan terlebih dahulu.', 'error'); return; }
 
-            // 1. FILTERING DATA KARTU DETIL BERDASARKAN NAMA & BULAN
-            const filteredDetail = masterQCData.filter(row => {
-                if (!row.timestamp) return false;
-                const d = new Date(row.timestamp);
-                return row.namaQC === namaQCSelected && `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` === bulanSelected;
-            });
+            // 1. FILTERING DATA KARTU DETIL BERDASARKAN NAMA & BULAN
+            const filteredDetail = masterQCData.filter(row => {
+                if (!row.timestamp) return false;
+                const d = new Date(row.timestamp);
+                return row.namaQC === namaQCSelected && `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` === bulanSelected;
+            });
 
-            if (!filteredDetail.length) { 
-                container.innerHTML = `<div class="text-center py-10 border-2 border-dashed border-rose-200 bg-rose-50 rounded-xl text-rose-500 font-medium text-sm">Tidak ada data.</div>`; 
-            } else {
-                const groupedByDate = {};
-                filteredDetail.forEach(row => {
-                    const dateKey = new Date(row.timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                    if (!groupedByDate[dateKey]) groupedByDate[dateKey] = [];
-                    groupedByDate[dateKey].push(row);
-                });
+            if (!filteredDetail.length) { 
+                container.innerHTML = `<div class="text-center py-10 border-2 border-dashed border-rose-200 bg-rose-50 rounded-xl text-rose-500 font-medium text-sm">Tidak ada data.</div>`; 
+            } else {
+                const groupedByDate = {};
+                filteredDetail.forEach(row => {
+                    const dateKey = new Date(row.timestamp).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    if (!groupedByDate[dateKey]) groupedByDate[dateKey] = [];
+                    groupedByDate[dateKey].push(row);
+                });
 
-                let htmlReport = '';
-                Object.keys(groupedByDate).sort((a, b) => new Date(a) - new Date(b)).forEach((date, di) => {
-                    const rowsInDate = groupedByDate[date];
-                    const agentsMap = {};
-                    
-                    rowsInDate.forEach(r => {
-                        if (!agentsMap[r.namaAgent]) agentsMap[r.namaAgent] = { totalEvals: 0, errors: {} };
-                        agentsMap[r.namaAgent].totalEvals++;
-                        
-                        Object.keys(paramMax).forEach(k => {
-                            const score = Number(r[k]), maxScore = paramMax[k];
-                            if (score < maxScore) {
-                                if (!agentsMap[r.namaAgent].errors[k]) agentsMap[r.namaAgent].errors[k] = { count: 0, comments: [] };
-                                agentsMap[r.namaAgent].errors[k].count++;
-                                const cKey = k === 'q8_1' ? 'c8_1' : 'c' + k.replace('q', '');
-                                
-                                // Simpan Catatan Beserta Tanggal Call Agent
-                                if (r[cKey] && String(r[cKey]).trim() !== '') {
-                                    agentsMap[r.namaAgent].errors[k].comments.push({
-                                        text: String(r[cKey]).trim(),
-                                        tglCall: r.tglCall
-                                    });
-                                }
-                            }
-                        });
-                    });
+                let htmlReport = '';
+                Object.keys(groupedByDate).sort((a, b) => new Date(a) - new Date(b)).forEach((date, di) => {
+                    const rowsInDate = groupedByDate[date];
+                    const agentsMap = {};
+                    
+                    rowsInDate.forEach(r => {
+                        if (!agentsMap[r.namaAgent]) agentsMap[r.namaAgent] = { totalEvals: 0, errors: {} };
+                        agentsMap[r.namaAgent].totalEvals++;
+                        
+                        Object.keys(paramMax).forEach(k => {
+                            const score = Number(r[k]), maxScore = paramMax[k];
+                            if (score < maxScore) {
+                                if (!agentsMap[r.namaAgent].errors[k]) agentsMap[r.namaAgent].errors[k] = { count: 0, comments: [] };
+                                agentsMap[r.namaAgent].errors[k].count++;
+                                const cKey = k === 'q8_1' ? 'c8_1' : 'c' + k.replace('q', '');
+                                
+                                // Simpan Catatan Beserta Tanggal Call Agent
+                                if (r[cKey] && String(r[cKey]).trim() !== '') {
+                                    agentsMap[r.namaAgent].errors[k].comments.push({
+                                        text: String(r[cKey]).trim(),
+                                        tglCall: r.tglCall
+                                    });
+                                }
+                            }
+                        });
+                    });
 
-                    let imperfectHtml = '';
-                    const agentNames = Object.keys(agentsMap);
-                    const agentsWithErrors = agentNames.filter(name => Object.keys(agentsMap[name].errors).length > 0);
+                    let imperfectHtml = '';
+                    const agentNames = Object.keys(agentsMap);
+                    const agentsWithErrors = agentNames.filter(name => Object.keys(agentsMap[name].errors).length > 0);
 
-                    if (agentsWithErrors.length === 0) {
-                        imperfectHtml = `<p class="text-xs text-emerald-600 font-bold bg-emerald-50 px-3 py-2 rounded-lg mt-2 border border-emerald-100">🎉 Semua agent mendapatkan poin sempurna (100) pada tanggal ini.</p>`;
-                    } else {
-                        imperfectHtml = `<div class="mt-4 space-y-3"><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">👤 Klik pada nama agent untuk melihat detail pelanggaran:</p>`;
-                        
-                        agentsWithErrors.forEach(name => {
-                            const agentData = agentsMap[name];
-                            let errorListHtml = '';
-                            
-                            Object.keys(agentData.errors).forEach(errKey => {
-                                const errDetail = agentData.errors[errKey];
-                                const countBadge = errDetail.count > 1 ? `<span class="text-rose-500 font-bold text-[10px] bg-rose-100 px-1.5 py-0.5 rounded-md ml-1.5 border border-rose-200">${errDetail.count}x Gagal</span>` : '';
-                                
-                                let commentsHtml = '';
-                                if (errDetail.comments.length > 0) {
-                                    // BENTUK LAYOUT KOMENTAR & BADGE TANGGAL CALL
-                                    commentsHtml = `<div class="mt-1.5 pl-3 border-l-[2px] border-indigo-200 ml-1.5 space-y-1">
-                                        ${errDetail.comments.map(c => {
-                                            const formatTglCall = c.tglCall ? new Date(c.tglCall).toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}) : '';
-                                            return `
-                                            <div class="flex items-start sm:items-center gap-2 text-[11px] text-slate-600">
-                                                <div class="flex-1"><span class="text-indigo-400">💬 Catatan:</span> ${c.text}</div>
-                                                ${formatTglCall ? `<div class="whitespace-nowrap font-semibold text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md border border-slate-200 shadow-sm flex items-center gap-1"><span class="text-slate-400">📅</span> ${formatTglCall}</div>` : ''}
-                                            </div>`;
-                                        }).join('')}
-                                    </div>`;
-                                }
-                                
-                                errorListHtml += `<li class="flex flex-col mb-3 pb-3 border-b border-rose-100/60 last:border-0 last:mb-0">
-                                    <div class="flex items-center text-xs font-bold text-slate-700"><span class="text-rose-500 mr-2 text-[10px]">▪</span> ${questionMap[errKey]} ${countBadge}</div>
-                                    ${commentsHtml}
-                                </li>`;
-                            });
-                            
-                            imperfectHtml += `<div class="border border-rose-200 bg-rose-50/40 rounded-xl overflow-hidden shadow-sm">
-                                <div onclick="toggleAgentAccordion(this)" class="cursor-pointer px-4 py-3 bg-rose-50/80 hover:bg-rose-100/70 transition-colors flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-black text-slate-800 text-sm">⚠️ ${name}</span>
-                                        <span class="text-[10px] font-bold bg-white text-slate-500 px-2 py-0.5 rounded-md border border-rose-200">Di-QC ${agentData.totalEvals}x</span>
-                                    </div>
-                                    <span class="arrow-icon text-xs font-bold text-slate-500 transition-transform duration-300">▼</span>
-                                </div>
-                                <div class="accordion-content bg-white px-4">
-                                    <ul class="py-3 pl-1 space-y-2">${errorListHtml}</ul>
-                                </div>
-                            </div>`;
-                        });
-                        imperfectHtml += `</div>`;
-                    }
+                    if (agentsWithErrors.length === 0) {
+                        imperfectHtml = `<p class="text-xs text-emerald-600 font-bold bg-emerald-50 px-3 py-2 rounded-lg mt-2 border border-emerald-100">🎉 Semua agent mendapatkan poin sempurna (100) pada tanggal ini.</p>`;
+                    } else {
+                        imperfectHtml = `<div class="mt-4 space-y-3"><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">👤 Klik pada nama agent untuk melihat detail pelanggaran:</p>`;
+                        
+                        agentsWithErrors.forEach(name => {
+                            const agentData = agentsMap[name];
+                            let errorListHtml = '';
+                            
+                            Object.keys(agentData.errors).forEach(errKey => {
+                                const errDetail = agentData.errors[errKey];
+                                const countBadge = errDetail.count > 1 ? `<span class="text-rose-500 font-bold text-[10px] bg-rose-100 px-1.5 py-0.5 rounded-md ml-1.5 border border-rose-200">${errDetail.count}x Gagal</span>` : '';
+                                
+                                let commentsHtml = '';
+                                if (errDetail.comments.length > 0) {
+                                    // BENTUK LAYOUT KOMENTAR & BADGE TANGGAL CALL
+                                    commentsHtml = `<div class="mt-1.5 pl-3 border-l-[2px] border-indigo-200 ml-1.5 space-y-1">
+                                        ${errDetail.comments.map(c => {
+                                            const formatTglCall = c.tglCall ? new Date(c.tglCall).toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}) : '';
+                                            return `
+                                            <div class="flex items-start sm:items-center gap-2 text-[11px] text-slate-600">
+                                                <div class="flex-1"><span class="text-indigo-400">💬 Catatan:</span> ${c.text}</div>
+                                                ${formatTglCall ? `<div class="whitespace-nowrap font-semibold text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md border border-slate-200 shadow-sm flex items-center gap-1"><span class="text-slate-400">📅</span> ${formatTglCall}</div>` : ''}
+                                            </div>`;
+                                        }).join('')}
+                                    </div>`;
+                                }
+                                
+                                errorListHtml += `<li class="flex flex-col mb-3 pb-3 border-b border-rose-100/60 last:border-0 last:mb-0">
+                                    <div class="flex items-center text-xs font-bold text-slate-700"><span class="text-rose-500 mr-2 text-[10px]">▪</span> ${questionMap[errKey]} ${countBadge}</div>
+                                    ${commentsHtml}
+                                </li>`;
+                            });
+                            
+                            imperfectHtml += `<div class="border border-rose-200 bg-rose-50/40 rounded-xl overflow-hidden shadow-sm">
+                                <div onclick="toggleAgentAccordion(this)" class="cursor-pointer px-4 py-3 bg-rose-50/80 hover:bg-rose-100/70 transition-colors flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-black text-slate-800 text-sm">⚠️ ${name}</span>
+                                        <span class="text-[10px] font-bold bg-white text-slate-500 px-2 py-0.5 rounded-md border border-rose-200">Di-QC ${agentData.totalEvals}x</span>
+                                    </div>
+                                    <span class="arrow-icon text-xs font-bold text-slate-500 transition-transform duration-300">▼</span>
+                                </div>
+                                <div class="accordion-content bg-white px-4">
+                                    <ul class="py-3 pl-1 space-y-2">${errorListHtml}</ul>
+                                </div>
+                            </div>`;
+                        });
+                        imperfectHtml += `</div>`;
+                    }
 
-                    htmlReport += `<div class="animate-fade-up border border-slate-200 rounded-xl overflow-hidden shadow-sm mb-4" style="animation-delay:${Math.min(di, 8) * 60}ms">
-                        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center"><h4 class="font-bold text-slate-800 text-sm">📅 ${date}</h4><span class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md">${agentNames.length} Agent di-QC</span></div>
-                        <div class="p-4">${imperfectHtml}</div>
-                    </div>`;
-                });
-                container.innerHTML = htmlReport;
-            }
+                    htmlReport += `<div class="animate-fade-up border border-slate-200 rounded-xl overflow-hidden shadow-sm mb-4" style="animation-delay:${Math.min(di, 8) * 60}ms">
+                        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center"><h4 class="font-bold text-slate-800 text-sm">📅 ${date}</h4><span class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md">${agentNames.length} Agent di-QC</span></div>
+                        <div class="p-4">${imperfectHtml}</div>
+                    </div>`;
+                });
+                container.innerHTML = htmlReport;
+            }
 
-            // 2. RENDER CHART TREN HARIAN QC BERDASARKAN BULAN YANG SAMA
-            renderQCChart(bulanSelected);
-        }
+            // 2. RENDER CHART TREN HARIAN QC BERDASARKAN BULAN YANG SAMA
+            renderQCChart(bulanSelected);
+        }
 
-        function renderQCChart(bulan) {
-            const filtered = masterQCData.filter(row => {
-                if(!row.timestamp) return false;
-                const d = new Date(row.timestamp);
-                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` === bulan;
-            });
+        function renderQCChart(bulan) {
+            const filtered = masterQCData.filter(row => {
+                if(!row.timestamp) return false;
+                const d = new Date(row.timestamp);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` === bulan;
+            });
 
-            const qcs = ["Mahmed Farissa", "Nurul Fatima Assyahrul Hidayati", "Agung Setiawan"];
-            const groupedByDateStr = {};
-            
-            filtered.forEach(row => {
-                const dateStr = new Date(row.timestamp).toISOString().split('T')[0]; // Format YYYY-MM-DD untuk sorting
-                if(!groupedByDateStr[dateStr]) {
-                    groupedByDateStr[dateStr] = {};
-                    qcs.forEach(qc => groupedByDateStr[dateStr][qc] = 0);
-                }
-                if(qcs.includes(row.namaQC)) {
-                    groupedByDateStr[dateStr][row.namaQC]++;
-                }
-            });
+            const qcs = ["Mahmed Farissa", "Nurul Fatima Assyahrul Hidayati", "Agung Setiawan"];
+            const groupedByDateStr = {};
+            
+            filtered.forEach(row => {
+                const dateStr = new Date(row.timestamp).toISOString().split('T')[0]; // Format YYYY-MM-DD untuk sorting
+                if(!groupedByDateStr[dateStr]) {
+                    groupedByDateStr[dateStr] = {};
+                    qcs.forEach(qc => groupedByDateStr[dateStr][qc] = 0);
+                }
+                if(qcs.includes(row.namaQC)) {
+                    groupedByDateStr[dateStr][row.namaQC]++;
+                }
+            });
 
-            const sortedDates = Object.keys(groupedByDateStr).sort();
-            const labels = sortedDates.map(d => new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }));
-            const colors = ['#4f46e5', '#10b981', '#f59e0b']; // Indigo, Emerald, Amber
+            const sortedDates = Object.keys(groupedByDateStr).sort();
+            const labels = sortedDates.map(d => new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }));
+            const colors = ['#4f46e5', '#10b981', '#f59e0b']; // Indigo, Emerald, Amber
 
-            const datasets = qcs.map((qc, i) => {
-                return {
-                    label: qc,
-                    data: sortedDates.map(d => groupedByDateStr[d][qc]),
-                    borderColor: colors[i],
-                    backgroundColor: colors[i] + '20',
-                    borderWidth: 2,
-                    tension: 0.3,
-                    fill: true
-                };
-            });
+            const datasets = qcs.map((qc, i) => {
+                return {
+                    label: qc,
+                    data: sortedDates.map(d => groupedByDateStr[d][qc]),
+                    borderColor: colors[i],
+                    backgroundColor: colors[i] + '20',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                };
+            });
 
-            const ctx = document.getElementById('chartTrenQC').getContext('2d');
-            if (chartQC) chartQC.destroy();
-            chartQC = new Chart(ctx, {
-                type: 'line',
-                data: { labels, datasets },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: {size: 11} } } }, 
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
-                    interaction: { mode: 'index', intersect: false }
-                }
-            });
-        }
-
-
-        // ==========================================
-        // PROSES DATA UNTUK VIEW LAPORAN VALIDASI
-        // ==========================================
-        function renderValidasiReport() {
-            const filterRegion = document.getElementById('filterRegionVal').value;
-            const filterPeriodeType = document.getElementById('filterPeriodeValType').value;
-            const filterBulan = document.getElementById('filterBulanVal').value;
-
-            // Filter master data
-            const filteredData = masterQCData.filter(row => {
-                if(!row.timestamp) return false;
-                // Filter Region
-                let passRegion = (filterRegion === 'ALL' || row.region === filterRegion);
-                // Filter Periode
-                let passPeriode = true;
-                if (filterPeriodeType === 'month' && filterBulan) {
-                    const d = new Date(row.timestamp);
-                    passPeriode = (`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` === filterBulan);
-                }
-                return passRegion && passPeriode;
-            });
-
-            // 1. UPDATE RANKING AGENT (TERFILTER)
-            const agentStats = {};
-            filteredData.forEach(row => {
-                if (!agentStats[row.namaAgent]) agentStats[row.namaAgent] = { t: 0, c: 0 };
-                agentStats[row.namaAgent].t += Number(row.totalSkor || 0); 
-                agentStats[row.namaAgent].c += 1;
-            });
-            const agentRank = Object.keys(agentStats).map(n => ({ n, avg: agentStats[n].t / agentStats[n].c })).sort((a, b) => b.avg - a.avg).slice(0, 10);
-            
-            const tblAg = document.getElementById('tblRankingAgent'); tblAg.innerHTML = "";
-            if(agentRank.length === 0) {
-                tblAg.innerHTML = `<tr><td colspan="3" class="px-3 py-6 text-center text-slate-500 font-medium text-xs">Belum ada data validasi sesuai filter.</td></tr>`;
-            } else {
-                agentRank.forEach((ag, i) => tblAg.innerHTML += `<tr class="border-b border-slate-50"><td class="px-3 py-2 text-center">${i<3?['🏆','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2 font-bold">${ag.n}</td><td class="px-3 py-2 text-right"><span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-lg font-bold">${ag.avg.toFixed(1)}/100</span></td></tr>`);
-            }
-
-            // 2. CHART TREN VALIDASI
-            const trendMap = {};
-            document.getElementById('labelTrenValDesc').innerText = (filterPeriodeType === 'all') ? "Menampilkan tren jumlah validasi bulanan." : "Menampilkan tren harian di bulan terpilih.";
-
-            filteredData.forEach(row => {
-                const d = new Date(row.timestamp);
-                let key, label;
-                if (filterPeriodeType === 'all') {
-                    key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                    label = d.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
-                } else {
-                    key = d.toISOString().split('T')[0];
-                    label = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
-                }
-                if (!trendMap[key]) trendMap[key] = { label, count: 0 };
-                trendMap[key].count++;
-            });
-            const sortedTrendKeys = Object.keys(trendMap).sort();
-            const trendLabels = sortedTrendKeys.map(k => trendMap[k].label);
-            const trendData = sortedTrendKeys.map(k => trendMap[k].count);
-
-            if (chartTrenVal) chartTrenVal.destroy();
-            chartTrenVal = new Chart(document.getElementById('chartTrenValidasi').getContext('2d'), {
-                type: filterPeriodeType === 'all' ? 'bar' : 'line',
-                data: { 
-                    labels: trendLabels, 
-                    datasets: [{ label: 'Jumlah Validasi', data: trendData, borderColor: '#0ea5e9', backgroundColor: '#0ea5e980', fill: true, tension: 0.3, borderWidth: 2, borderRadius: 4 }] 
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
-            });
-
-            // 3. CHART VALIDASI PER REGION
-            const regionMap = {};
-            filteredData.forEach(row => {
-                const r = row.region || 'Unknown';
-                regionMap[r] = (regionMap[r] || 0) + 1;
-            });
-            const sortedRegions = Object.keys(regionMap).sort((a,b) => regionMap[b] - regionMap[a]);
-            
-            if (chartRegionVal) chartRegionVal.destroy();
-            chartRegionVal = new Chart(document.getElementById('chartRegionValidasi').getContext('2d'), {
-                type: 'bar',
-                data: { 
-                    labels: sortedRegions, 
-                    datasets: [{ label: 'Total Validasi', data: sortedRegions.map(r => regionMap[r]), backgroundColor: '#8b5cf6', borderRadius: 4 }] 
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
-            });
-        }
+            const ctx = document.getElementById('chartTrenQC').getContext('2d');
+            if (chartQC) chartQC.destroy();
+            chartQC = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets },
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: {size: 11} } } }, 
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                    interaction: { mode: 'index', intersect: false }
+                }
+            });
+        }
 
 
-        // ==========================================
-        // FUNGSI UMUM & FORM
-        // ==========================================
-        function autoFillRegion(val) { const f = masterAgentData.find(a => a.namaICRM === val); if (f && f.region) document.getElementById('regionQC').value = f.region; }
+        // ==========================================
+        // PROSES DATA UNTUK VIEW LAPORAN VALIDASI
+        // ==========================================
+        function renderValidasiReport() {
+            const filterRegion = document.getElementById('filterRegionVal').value;
+            const filterPeriodeType = document.getElementById('filterPeriodeValType').value;
+            const filterBulan = document.getElementById('filterBulanVal').value;
 
-        function toggleAgentAccordion(headerElement) {
-            const content = headerElement.nextElementSibling;
-            const arrow = headerElement.querySelector('.arrow-icon');
-            content.classList.toggle('open');
-            content.style.maxHeight = content.classList.contains('open') ? content.scrollHeight + 'px' : '';
-            if (arrow) arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
-        }
+            // Filter master data
+            const filteredData = masterQCData.filter(row => {
+                if(!row.timestamp) return false;
+                // Filter Region
+                let passRegion = (filterRegion === 'ALL' || row.region === filterRegion);
+                // Filter Periode
+                let passPeriode = true;
+                if (filterPeriodeType === 'month' && filterBulan) {
+                    const d = new Date(row.timestamp);
+                    passPeriode = (`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` === filterBulan);
+                }
+                return passRegion && passPeriode;
+            });
 
-        function toggleNoteAccordion(radioEl) {
-            const card = radioEl.closest('.qc-item');
-            if (!card) return;
-            const noteBox = card.querySelector('.note-accordion');
-            const imperfect = Number(radioEl.value) < paramMax[radioEl.name];
-            noteBox.classList.toggle('open', imperfect);
-            card.classList.add('answered');
-            card.classList.toggle('flagged', imperfect);
-            if (!imperfect) { const input = noteBox.querySelector('input'); if (input) input.value = ''; }
-        }
+            // 1. UPDATE RANKING AGENT (TERFILTER)
+            const agentStats = {};
+            filteredData.forEach(row => {
+                if (!agentStats[row.namaAgent]) agentStats[row.namaAgent] = { t: 0, c: 0 };
+                agentStats[row.namaAgent].t += Number(row.totalSkor || 0); 
+                agentStats[row.namaAgent].c += 1;
+            });
+            const agentRank = Object.keys(agentStats).map(n => ({ n, avg: agentStats[n].t / agentStats[n].c })).sort((a, b) => b.avg - a.avg).slice(0, 10);
+            
+            const tblAg = document.getElementById('tblRankingAgent'); tblAg.innerHTML = "";
+            if(agentRank.length === 0) {
+                tblAg.innerHTML = `<tr><td colspan="3" class="px-3 py-6 text-center text-slate-500 font-medium text-xs">Belum ada data validasi sesuai filter.</td></tr>`;
+            } else {
+                agentRank.forEach((ag, i) => tblAg.innerHTML += `<tr class="border-b border-slate-50"><td class="px-3 py-2 text-center">${i<3?['🏆','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2 font-bold">${ag.n}</td><td class="px-3 py-2 text-right"><span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-lg font-bold">${ag.avg.toFixed(1)}/100</span></td></tr>`);
+            }
 
-        const qcCont = document.getElementById('checklistContainer');
-        const qcParameters = [
-            { id: 'q1', title: "1. Salam Pembuka", desc: "Mengucapkan salam standar awal", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
-            { id: 'q2', title: "2. Konfirmasi Kesediaan", desc: "Meminta izin pelanggan", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
-            { id: 'q3', title: "3. Verifikasi Data", desc: "Mencocokkan data pelanggan (Poin Besar)", options: [{label: "Yes (20)", val: 20}, {label: "No (0)", val: 0}] },
-            { id: 'q4', title: "4. Kesesuaian Edukasi", desc: "Informasi layanan benar", options: [{label: "Penuh (15)", val: 15, class: 'val-mid'}, {label: "Sebagian (10)", val: 10, class: 'val-mid'}, {label: "Tidak (0)", val: 0, class: 'val-0'}] },
-            { id: 'q5', title: "5. Pemilihan Kalimat", desc: "Bahasa profesional", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
-            { id: 'q6', title: "6. Kejelasan Ucapan", desc: "Artikulasi dan intonasi", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
-            { id: 'q7', title: "7. Etika Komunikasi", desc: "Sopan, tidak memotong", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
-            { id: 'q8', title: "8. Pencatatan Hasil", desc: "Dicatat di sistem", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
-            { id: 'q8_1', title: "8.1 Kesesuaian Pencatatan", desc: "Akurasi data tercatat", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
-            { id: 'q9', title: "9. Konfirmasi Pertanyaan", desc: "Pastikan tak ada sisa pertanyaan", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
-            { id: 'q10', title: "10. Salam Penutup", desc: "Mengucapkan salam standar penutup", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] }
-        ];
+            // 2. CHART TREN VALIDASI
+            const trendMap = {};
+            document.getElementById('labelTrenValDesc').innerText = (filterPeriodeType === 'all') ? "Menampilkan tren jumlah validasi bulanan." : "Menampilkan tren harian di bulan terpilih.";
 
-        qcParameters.forEach((param, index) => {
-            let optionsHtml = '';
-            param.options.forEach((opt, i) => {
-                const radioClass = opt.val === 0 ? 'val-0' : (opt.class || 'val-full');
-                optionsHtml += `<div class="flex-1 radio-btn-group">
-                    <input type="radio" id="${param.id}_opt${i}" name="${param.id}" value="${opt.val}" class="${radioClass}" required onchange="calculateScore(); toggleNoteAccordion(this)">
-                    <label for="${param.id}_opt${i}" class="block w-full text-center py-2 px-1 rounded-lg text-[11px] sm:text-[13px] font-bold select-none h-full flex items-center justify-center leading-tight">${opt.label}</label>
-                </div>`;
-            });
-            qcCont.innerHTML += `<div class="qc-item animate-fade-up p-3.5 rounded-xl border border-slate-200 bg-slate-50/30 hover:bg-slate-50 transition-colors" style="animation-delay:${index * 35}ms">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
-                    <div class="sm:w-1/2"><h3 class="text-[13px] sm:text-sm font-bold text-slate-800">${param.title}</h3><p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">${param.desc}</p></div>
-                    <div class="sm:w-1/2 flex gap-1">${optionsHtml}</div>
-                </div>
-                <div class="note-accordion accordion-content mt-1">
-                    <div class="pt-2 border-t border-slate-200 mt-2">
-                        <input type="text" name="c_${param.id}" placeholder="📝 Wajib/Opsional: Ketik catatan atau alasan..." class="w-full px-3 py-2 text-xs bg-white border border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-600 shadow-sm">
-                    </div>
-                </div>
-            </div>`;
-        });
+            filteredData.forEach(row => {
+                const d = new Date(row.timestamp);
+                let key, label;
+                if (filterPeriodeType === 'all') {
+                    key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                    label = d.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+                } else {
+                    key = d.toISOString().split('T')[0];
+                    label = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+                }
+                if (!trendMap[key]) trendMap[key] = { label, count: 0 };
+                trendMap[key].count++;
+            });
+            const sortedTrendKeys = Object.keys(trendMap).sort();
+            const trendLabels = sortedTrendKeys.map(k => trendMap[k].label);
+            const trendData = sortedTrendKeys.map(k => trendMap[k].count);
 
-        let shownScore = 0, currentScore = 0, scoreRAF;
-        function tweenScore(to) {
-            currentScore = to; cancelAnimationFrame(scoreRAF);
-            const from = shownScore, t0 = performance.now(), dur = 450;
-            const els = [document.getElementById('scoreTotalDesk'), document.getElementById('scoreTotalMob')];
-            const step = now => {
-                const p = Math.min((now - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
-                shownScore = Math.round(from + (to - from) * e);
-                els.forEach(el => el.innerText = shownScore);
-                if (p < 1) scoreRAF = requestAnimationFrame(step);
-            };
-            scoreRAF = requestAnimationFrame(step);
-        }
+            if (chartTrenVal) chartTrenVal.destroy();
+            chartTrenVal = new Chart(document.getElementById('chartTrenValidasi').getContext('2d'), {
+                type: filterPeriodeType === 'all' ? 'bar' : 'line',
+                data: { 
+                    labels: trendLabels, 
+                    datasets: [{ label: 'Jumlah Validasi', data: trendData, borderColor: '#0ea5e9', backgroundColor: '#0ea5e980', fill: true, tension: 0.3, borderWidth: 2, borderRadius: 4 }] 
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+            });
 
-        function showToast(msg, type = 'success') {
-            const t = document.createElement('div'); t.className = 'toast ' + type;
-            const ic = document.createElement('span'); ic.textContent = type === 'success' ? '✅' : '❌';
-            const tx = document.createElement('span'); tx.textContent = msg;
-            t.append(ic, tx); document.getElementById('toastBox').appendChild(t);
-            setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 3200);
-        }
+            // 3. CHART VALIDASI PER REGION
+            const regionMap = {};
+            filteredData.forEach(row => {
+                const r = row.region || 'Unknown';
+                regionMap[r] = (regionMap[r] || 0) + 1;
+            });
+            const sortedRegions = Object.keys(regionMap).sort((a,b) => regionMap[b] - regionMap[a]);
+            
+            if (chartRegionVal) chartRegionVal.destroy();
+            chartRegionVal = new Chart(document.getElementById('chartRegionValidasi').getContext('2d'), {
+                type: 'bar',
+                data: { 
+                    labels: sortedRegions, 
+                    datasets: [{ label: 'Total Validasi', data: sortedRegions.map(r => regionMap[r]), backgroundColor: '#8b5cf6', borderRadius: 4 }] 
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+            });
+        }
 
-        function calculateScore() {
-            let total = 0; const formData = new FormData(document.getElementById('qcForm'));
-            qcParameters.forEach(param => { const val = formData.get(param.id); if (val !== null) total += parseInt(val); });
-            tweenScore(total);
-            const pct = (total / 100) * 100;
-            document.getElementById('scorePctDesk').innerText = pct.toFixed(1) + '%';
-            document.getElementById('scoreBarDesk').style.width = pct + '%';
-            const bar = document.getElementById('scoreBarDesk'), statusEl = document.getElementById('scoreStatusDesk');
-            if (total === 0) { bar.className = "bg-slate-300 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>'; }
-            else if (pct >= 90) { bar.className = "bg-emerald-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-emerald-400 font-bold">Excellent 🌟</span>'; }
-            else if (pct >= 75) { bar.className = "bg-indigo-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-indigo-400 font-bold">Good 👍</span>'; }
-            else if (pct >= 50) { bar.className = "bg-amber-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-amber-400 font-bold">Needs Improvement ⚠️</span>'; }
-            else { bar.className = "bg-rose-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-rose-400 font-bold">Poor ❌</span>'; }
-            statusEl.classList.remove('pop'); void statusEl.offsetWidth; statusEl.classList.add('pop');
-        }
 
-        function submitFormQC(event) {
-            event.preventDefault();
-            const btnDesk = document.getElementById('btnSubmitDesk'), btnMob = document.getElementById('btnSubmitMob');
-            const originalText = btnDesk.innerHTML;
-            const spin = '<span class="spinner"></span>Mengirim...'; btnDesk.innerHTML = spin; btnMob.innerHTML = spin; btnDesk.disabled = true; btnMob.disabled = true;
+        // ==========================================
+        // FUNGSI UMUM & FORM
+        // ==========================================
+        function autoFillRegion(val) { const f = masterAgentData.find(a => a.namaICRM === val); if (f && f.region) document.getElementById('regionQC').value = f.region; }
 
-            const formData = new FormData(event.target);
-            const dataToSubmit = Object.fromEntries(formData.entries());
-            dataToSubmit.action = "inputQC"; 
-            dataToSubmit.totalSkor = String(currentScore);
-            ['1','2','3','4','5','6','7','8','8_1','9','10'].forEach(num => { dataToSubmit['c' + num] = formData.get('c_q' + num) || ""; });
+        function toggleAgentAccordion(headerElement) {
+            const content = headerElement.nextElementSibling;
+            const arrow = headerElement.querySelector('.arrow-icon');
+            content.classList.toggle('open');
+            content.style.maxHeight = content.classList.contains('open') ? content.scrollHeight + 'px' : '';
+            if (arrow) arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
 
-            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataToSubmit), headers: { "Content-Type": "text/plain;charset=utf-8" } })
-            .then(res => res.json()).then(result => {
-                if (result.status === "sukses") { showToast('Penilaian QC berhasil disimpan'); event.target.classList.add('pointer-events-none'); setTimeout(() => window.location.reload(), 1400); } 
-                else showToast('Gagal: ' + result.error, 'error');
-            }).catch(err => showToast('Terjadi kesalahan jaringan.', 'error')).finally(() => { btnDesk.innerHTML = originalText; btnMob.innerHTML = "Kirim QC"; btnDesk.disabled = false; btnMob.disabled = false; });
-        }
+        function toggleNoteAccordion(radioEl) {
+            const card = radioEl.closest('.qc-item');
+            if (!card) return;
+            const noteBox = card.querySelector('.note-accordion');
+            const imperfect = Number(radioEl.value) < paramMax[radioEl.name];
+            noteBox.classList.toggle('open', imperfect);
+            card.classList.add('answered');
+            card.classList.toggle('flagged', imperfect);
+            if (!imperfect) { const input = noteBox.querySelector('input'); if (input) input.value = ''; }
+        }
 
-        function submitFormAgent(event) {
-            event.preventDefault();
-            const btn = document.getElementById('btnSubmitAgent'); const originalText = btn.innerHTML;
-            btn.innerHTML = '<span class="spinner"></span>Menyimpan...'; btn.disabled = true;
-            const formData = new FormData(event.target); const dataToSubmit = Object.fromEntries(formData.entries());
-            dataToSubmit.action = "inputAgent";
-            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataToSubmit), headers: { "Content-Type": "text/plain;charset=utf-8" } })
-            .then(res => res.json()).then(result => {
-                if (result.status === "sukses") { showToast('Data agent berhasil disimpan'); event.target.classList.add('pointer-events-none'); setTimeout(() => window.location.reload(), 1400); } 
-                else showToast('Gagal: ' + result.error, 'error');
-            }).catch(err => showToast('Terjadi kesalahan jaringan.', 'error')).finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
-        }
-    </script>
+        const qcCont = document.getElementById('checklistContainer');
+        const qcParameters = [
+            { id: 'q1', title: "1. Salam Pembuka", desc: "Mengucapkan salam standar awal", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
+            { id: 'q2', title: "2. Konfirmasi Kesediaan", desc: "Meminta izin pelanggan", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
+            { id: 'q3', title: "3. Verifikasi Data", desc: "Mencocokkan data pelanggan (Poin Besar)", options: [{label: "Yes (20)", val: 20}, {label: "No (0)", val: 0}] },
+            { id: 'q4', title: "4. Kesesuaian Edukasi", desc: "Informasi layanan benar", options: [{label: "Penuh (15)", val: 15, class: 'val-mid'}, {label: "Sebagian (10)", val: 10, class: 'val-mid'}, {label: "Tidak (0)", val: 0, class: 'val-0'}] },
+            { id: 'q5', title: "5. Pemilihan Kalimat", desc: "Bahasa profesional", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
+            { id: 'q6', title: "6. Kejelasan Ucapan", desc: "Artikulasi dan intonasi", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
+            { id: 'q7', title: "7. Etika Komunikasi", desc: "Sopan, tidak memotong", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
+            { id: 'q8', title: "8. Pencatatan Hasil", desc: "Dicatat di sistem", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
+            { id: 'q8_1', title: "8.1 Kesesuaian Pencatatan", desc: "Akurasi data tercatat", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
+            { id: 'q9', title: "9. Konfirmasi Pertanyaan", desc: "Pastikan tak ada sisa pertanyaan", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
+            { id: 'q10', title: "10. Salam Penutup", desc: "Mengucapkan salam standar penutup", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] }
+        ];
+
+        qcParameters.forEach((param, index) => {
+            let optionsHtml = '';
+            param.options.forEach((opt, i) => {
+                const radioClass = opt.val === 0 ? 'val-0' : (opt.class || 'val-full');
+                optionsHtml += `<div class="flex-1 radio-btn-group">
+                    <input type="radio" id="${param.id}_opt${i}" name="${param.id}" value="${opt.val}" class="${radioClass}" required onchange="calculateScore(); toggleNoteAccordion(this)">
+                    <label for="${param.id}_opt${i}" class="block w-full text-center py-2 px-1 rounded-lg text-[11px] sm:text-[13px] font-bold select-none h-full flex items-center justify-center leading-tight">${opt.label}</label>
+                </div>`;
+            });
+            qcCont.innerHTML += `<div class="qc-item animate-fade-up p-3.5 rounded-xl border border-slate-200 bg-slate-50/30 hover:bg-slate-50 transition-colors" style="animation-delay:${index * 35}ms">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                    <div class="sm:w-1/2"><h3 class="text-[13px] sm:text-sm font-bold text-slate-800">${param.title}</h3><p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">${param.desc}</p></div>
+                    <div class="sm:w-1/2 flex gap-1">${optionsHtml}</div>
+                </div>
+                <div class="note-accordion accordion-content mt-1">
+                    <div class="pt-2 border-t border-slate-200 mt-2">
+                        <input type="text" name="c_${param.id}" placeholder="📝 Wajib/Opsional: Ketik catatan atau alasan..." class="w-full px-3 py-2 text-xs bg-white border border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-600 shadow-sm">
+                    </div>
+                </div>
+            </div>`;
+        });
+
+        let shownScore = 0, currentScore = 0, scoreRAF;
+        function tweenScore(to) {
+            currentScore = to; cancelAnimationFrame(scoreRAF);
+            const from = shownScore, t0 = performance.now(), dur = 450;
+            const els = [document.getElementById('scoreTotalDesk'), document.getElementById('scoreTotalMob')];
+            const step = now => {
+                const p = Math.min((now - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+                shownScore = Math.round(from + (to - from) * e);
+                els.forEach(el => el.innerText = shownScore);
+                if (p < 1) scoreRAF = requestAnimationFrame(step);
+            };
+            scoreRAF = requestAnimationFrame(step);
+        }
+
+        function showToast(msg, type = 'success') {
+            const t = document.createElement('div'); t.className = 'toast ' + type;
+            const ic = document.createElement('span'); ic.textContent = type === 'success' ? '✅' : '❌';
+            const tx = document.createElement('span'); tx.textContent = msg;
+            t.append(ic, tx); document.getElementById('toastBox').appendChild(t);
+            setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 3200);
+        }
+
+        function calculateScore() {
+            let total = 0; const formData = new FormData(document.getElementById('qcForm'));
+            qcParameters.forEach(param => { const val = formData.get(param.id); if (val !== null) total += parseInt(val); });
+            tweenScore(total);
+            const pct = (total / 100) * 100;
+            document.getElementById('scorePctDesk').innerText = pct.toFixed(1) + '%';
+            document.getElementById('scoreBarDesk').style.width = pct + '%';
+            const bar = document.getElementById('scoreBarDesk'), statusEl = document.getElementById('scoreStatusDesk');
+            if (total === 0) { bar.className = "bg-slate-300 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>'; }
+            else if (pct >= 90) { bar.className = "bg-emerald-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-emerald-400 font-bold">Excellent 🌟</span>'; }
+            else if (pct >= 75) { bar.className = "bg-indigo-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-indigo-400 font-bold">Good 👍</span>'; }
+            else if (pct >= 50) { bar.className = "bg-amber-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-amber-400 font-bold">Needs Improvement ⚠️</span>'; }
+            else { bar.className = "bg-rose-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-rose-400 font-bold">Poor ❌</span>'; }
+            statusEl.classList.remove('pop'); void statusEl.offsetWidth; statusEl.classList.add('pop');
+        }
+
+        function submitFormQC(event) {
+            event.preventDefault();
+            const btnDesk = document.getElementById('btnSubmitDesk'), btnMob = document.getElementById('btnSubmitMob');
+            const originalText = btnDesk.innerHTML;
+            const spin = '<span class="spinner"></span>Mengirim...'; btnDesk.innerHTML = spin; btnMob.innerHTML = spin; btnDesk.disabled = true; btnMob.disabled = true;
+
+            const formData = new FormData(event.target);
+            const dataToSubmit = Object.fromEntries(formData.entries());
+            dataToSubmit.action = "inputQC"; 
+            dataToSubmit.totalSkor = String(currentScore);
+            ['1','2','3','4','5','6','7','8','8_1','9','10'].forEach(num => { dataToSubmit['c' + num] = formData.get('c_q' + num) || ""; });
+
+            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataToSubmit), headers: { "Content-Type": "text/plain;charset=utf-8" } })
+            .then(res => res.json()).then(result => {
+                if (result.status === "sukses") { showToast('Penilaian QC berhasil disimpan'); event.target.classList.add('pointer-events-none'); setTimeout(() => window.location.reload(), 1400); } 
+                else showToast('Gagal: ' + result.error, 'error');
+            }).catch(err => showToast('Terjadi kesalahan jaringan.', 'error')).finally(() => { btnDesk.innerHTML = originalText; btnMob.innerHTML = "Kirim QC"; btnDesk.disabled = false; btnMob.disabled = false; });
+        }
+
+        function submitFormAgent(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnSubmitAgent'); const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner"></span>Menyimpan...'; btn.disabled = true;
+            const formData = new FormData(event.target); const dataToSubmit = Object.fromEntries(formData.entries());
+            dataToSubmit.action = "inputAgent";
+            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataToSubmit), headers: { "Content-Type": "text/plain;charset=utf-8" } })
+            .then(res => res.json()).then(result => {
+                if (result.status === "sukses") { showToast('Data agent berhasil disimpan'); event.target.classList.add('pointer-events-none'); setTimeout(() => window.location.reload(), 1400); } 
+                else showToast('Gagal: ' + result.error, 'error');
+            }).catch(err => showToast('Terjadi kesalahan jaringan.', 'error')).finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
+        }
+    </script>
 </body>
 </html>
