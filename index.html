@@ -362,12 +362,19 @@
         }
 
         // FUNGSI TOGGLE ACCORDION UNTUK CATATAN FORMULIR QC
+        // FUNGSI TOGGLE ACCORDION UNTUK CATATAN FORMULIR QC
         function toggleNoteAccordion(checkboxEl) {
             const noteContainer = checkboxEl.closest('.p-3.5').querySelector('.note-accordion');
-            if (checkboxEl.value === "0" || checkboxEl.value === "10" || checkboxEl.value === "15") {
-                noteContainer.classList.add('open'); // Otomatis buka jika memilih nilai tidak sempurna/parsial
+            
+            // Cek nilai maksimal dari parameter ini berdasarkan ID-nya
+            const paramId = checkboxEl.name;
+            const maxScore = paramMax[paramId];
+            
+            // Jika nilai yang dipilih kurang dari nilai maksimal (tidak sempurna), buka accordion catatan
+            if (Number(checkboxEl.value) < maxScore) {
+                noteContainer.classList.add('open'); 
             } else {
-                noteContainer.classList.remove('open'); // Tutup jika memilih nilai sempurna
+                noteContainer.classList.remove('open'); // Tutup kembali jika memilih nilai sempurna
             }
         }
 
