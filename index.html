@@ -3,48 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulir QC Validasi</title>
+    <title>Portal QC Validasi & Data Agent</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; }
         
-        /* Animasi Transisi */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-up { animation: fadeUp 0.5s ease forwards; opacity: 0; }
         
-        /* Kustomisasi Radio Button menjadi seperti Tombol (Pill) */
         .radio-btn-group input[type="radio"] { display: none; }
-        .radio-btn-group label {
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 1px solid #e2e8f0;
-            background-color: white;
-            color: #64748b;
-        }
-        .radio-btn-group input[type="radio"]:checked + label {
-            background-color: #4f46e5; /* Indigo 600 */
-            color: white;
-            border-color: #4f46e5;
-            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
-        }
-        .radio-btn-group input[type="radio"].val-0:checked + label {
-            background-color: #e11d48; /* Rose 600 untuk poin 0 */
-            border-color: #e11d48;
-            box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.2);
-        }
-        .radio-btn-group input[type="radio"].val-mid:checked + label {
-            background-color: #0ea5e9; /* Sky 500 untuk poin parsial */
-            border-color: #0ea5e9;
-            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.2);
-        }
+        .radio-btn-group label { cursor: pointer; transition: all 0.2s ease; border: 1px solid #e2e8f0; background-color: white; color: #64748b; }
+        .radio-btn-group input[type="radio"]:checked + label { background-color: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); }
+        .radio-btn-group input[type="radio"].val-0:checked + label { background-color: #e11d48; border-color: #e11d48; box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.2); }
+        .radio-btn-group input[type="radio"].val-mid:checked + label { background-color: #0ea5e9; border-color: #0ea5e9; box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.2); }
         
-        /* Scrollbar kustom */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .hidden-tab { display: none !important; }
     </style>
 </head>
 <body class="text-slate-800 pb-20">
@@ -56,301 +32,356 @@
                 <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-lg">QC</div>
                 <div>
                     <h1 class="font-bold text-slate-800 leading-tight">Portal QC Validasi</h1>
-                    <p class="text-[11px] text-slate-500 font-medium">Monitoring Kualitas & Kepatuhan Agen</p>
+                    <p class="text-[11px] text-slate-500 font-medium">Monitoring Kualitas & Kepatuhan</p>
                 </div>
             </div>
-            <div class="text-sm font-semibold text-slate-500 hidden sm:block" id="currentDate"></div>
+            <!-- Tab Switcher Navigation -->
+            <div class="hidden sm:flex bg-slate-100 p-1 rounded-xl">
+                <button onclick="switchTab('qc')" id="btnTabQC" class="px-4 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">Formulir QC</button>
+                <button onclick="switchTab('agent')" id="btnTabAgent" class="px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Registrasi Agent</button>
+            </div>
+        </div>
+        <!-- Mobile Tab Switcher -->
+        <div class="sm:hidden flex bg-slate-100 p-1 m-2 rounded-xl">
+            <button onclick="switchTab('qc')" id="btnTabQCMob" class="flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">Formulir QC</button>
+            <button onclick="switchTab('agent')" id="btnTabAgentMob" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all">Registrasi Agent</button>
         </div>
     </nav>
 
-    <!-- Kontainer Utama (Split Layout) -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <form id="qcForm" onsubmit="submitForm(event)" class="flex flex-col lg:flex-row gap-6">
-            
-            <!-- SISI KIRI: Formulir Identitas (Tetap di posisinya saat di-scroll di desktop) -->
+    <!-- WRAPPER HALAMAN QC VALIDASI -->
+    <div id="pageQC" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 animate-fade-up">
+        <form id="qcForm" onsubmit="submitFormQC(event)" class="flex flex-col lg:flex-row gap-6">
+            <!-- SISI KIRI: Formulir Identitas -->
             <div class="w-full lg:w-4/12 flex flex-col gap-6">
-                
-                <!-- KARTU DATA IDENTITAS -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-6 animate-fade-up" style="animation-delay: 100ms;">
-                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">
-                        📋 Data Identitas
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-6">
+                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 pb-3 border-b border-slate-100 flex items-center justify-between">
+                        <span>📋 Data Identitas</span>
+                        <span id="agentSyncStatus" class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 hidden">✅ Agent tersinkronisasi</span>
                     </h2>
                     
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">ID Permohonan</label>
-                            <input type="text" id="idPermohonan" required placeholder="Contoh: PRM-202610-001" 
-                                class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Agent (Ketik untuk mencari...)</label>
+                            <!-- DATALIST UNTUK AUTOCOMPLETE NAMA ICRM -->
+                            <input type="text" id="namaAgent" name="namaAgent" list="icrmList" required autocomplete="off" placeholder="Cari nama akun ICRM..." 
+                                class="w-full px-3.5 py-2.5 text-sm bg-indigo-50/50 border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all font-bold text-indigo-700">
+                            <datalist id="icrmList">
+                                <!-- Opsi diisi otomatis via JS saat web dimuat -->
+                            </datalist>
                         </div>
-                        
+
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Agent (Tele/Validasi)</label>
-                            <input type="text" id="namaAgent" required placeholder="Masukkan nama agent..." 
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5">ID Permohonan</label>
+                            <input type="text" id="idPermohonan" name="idPermohonan" required placeholder="Contoh: PRM-202610-001" 
                                 class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama QC</label>
-                            <input type="text" id="namaQC" required placeholder="Nama Anda (Petugas QC)" 
+                            <input type="text" id="namaQC" name="namaQC" required placeholder="Nama Anda (Petugas QC)" 
                                 class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-500 mb-1.5">Region SBU</label>
-                                <select id="region" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-slate-700 cursor-pointer">
+                                <select id="regionQC" name="region" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium text-slate-700 cursor-pointer">
                                     <option value="" disabled selected>Pilih...</option>
-                                    <option value="JBB">JBB</option>
-                                    <option value="JBT">JBT</option>
-                                    <option value="JBTG">JBTG</option>
-                                    <option value="JKB">JKB</option>
-                                    <option value="KAL">KAL</option>
-                                    <option value="BNT">BNT</option>
-                                    <!-- Tambahkan region lain sesuai kebutuhan -->
+                                    <option value="JBB">JBB</option><option value="JBT">JBT</option><option value="JBTG">JBTG</option>
+                                    <option value="JKB">JKB</option><option value="KAL">KAL</option><option value="BNT">BNT</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tgl Call Agent</label>
-                                <input type="date" id="tglCall" required 
-                                    class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-slate-700 cursor-pointer">
+                                <input type="date" id="tglCall" name="tglCall" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Pemohon (Pelanggan)</label>
-                            <input type="text" id="namaPemohon" required placeholder="Nama lengkap pelanggan..." 
-                                class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
+                            <input type="text" id="namaPemohon" name="namaPemohon" required placeholder="Nama lengkap pelanggan..." class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nomor yang Dihubungi</label>
-                            <input type="tel" id="nomorKontak" required placeholder="Contoh: 081234567890" 
-                                class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
+                            <input type="tel" id="nomorKontak" name="nomorKontak" required placeholder="Contoh: 081234567890" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium">
                         </div>
                     </div>
                 </div>
 
-                <!-- KARTU RINGKASAN SKOR REAL-TIME (Tampil di Desktop Sidebar) -->
-                <div class="bg-slate-900 rounded-2xl shadow-xl border border-slate-800 p-5 lg:p-6 animate-fade-up text-white sticky top-24 hidden lg:block" style="animation-delay: 200ms;">
+                <!-- Scoreboard Desktop -->
+                <div class="bg-slate-900 rounded-2xl shadow-xl border border-slate-800 p-5 lg:p-6 text-white sticky top-24 hidden lg:block">
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Skor Kepatuhan Agent</p>
                     <div class="flex items-end gap-2 mb-4">
                         <h2 class="text-5xl font-black" id="scoreTotalDesk">0</h2>
                         <span class="text-lg font-medium text-slate-400 mb-1.5">/ 85</span>
                     </div>
-                    
                     <div class="w-full bg-slate-800 rounded-full h-3 mb-2">
                         <div id="scoreBarDesk" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
                     <div class="flex justify-between items-center text-xs font-semibold text-slate-400 mb-6">
                         <span>Persentase: <span id="scorePctDesk" class="text-white">0%</span></span>
-                        <span id="scoreStatusDesk" class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Menunggu Pengisian</span>
+                        <span id="scoreStatusDesk" class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Menunggu...</span>
                     </div>
-
-                    <button type="submit" id="btnSubmitDesk" class="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition-colors shadow-[0_0_15px_rgba(79,70,229,0.3)] flex items-center justify-center gap-2">
-                        <span>Kirim Hasil Penilaian</span>
-                    </button>
+                    <button type="submit" id="btnSubmitDesk" class="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition-colors shadow-[0_0_15px_rgba(79,70,229,0.3)]">Kirim Penilaian QC</button>
                 </div>
-
             </div>
 
             <!-- SISI KANAN: Formulir Checklist Kualitas -->
-            <div class="w-full lg:w-8/12 animate-fade-up" style="animation-delay: 300ms;">
+            <div class="w-full lg:w-8/12">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-8">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            ✅ 10 Parameter Mandatori Penilaian
-                        </h2>
-                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">
-                            Total Max: 85 Poin
-                        </span>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">✅ 10 Parameter Mandatori</h2>
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">Max: 85 Poin</span>
                     </div>
-
-                    <div id="checklistContainer" class="space-y-6">
-                        <!-- Daftar pertanyaan akan di-generate oleh JavaScript di sini agar rapi -->
-                    </div>
-
+                    <div id="checklistContainer" class="space-y-6"></div>
                 </div>
             </div>
             
-            <!-- PANEL MOBILE: Tombol Submit untuk Layar HP -->
+            <!-- Mobile Scoreboard -->
             <div class="block lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
                 <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
                     <div>
                         <p class="text-[10px] font-bold text-slate-400 uppercase">Total Skor</p>
                         <p class="text-xl font-black text-slate-800"><span id="scoreTotalMob">0</span><span class="text-xs text-slate-400">/85</span></p>
                     </div>
-                    <button type="submit" id="btnSubmitMob" class="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition-colors shadow-sm">
-                        Kirim Penilaian
-                    </button>
+                    <button type="submit" id="btnSubmitMob" class="flex-1 py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-sm">Kirim QC</button>
                 </div>
             </div>
-
         </form>
     </div>
 
-    <script>
-        // Set Tanggal Hari Ini di Navbar
-        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('id-ID', dateOptions);
+    <!-- WRAPPER HALAMAN REGISTRASI DATA AGENT (BARU) -->
+    <div id="pageAgent" class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 hidden-tab animate-fade-up">
+        <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden">
+            <div class="bg-slate-900 p-6 sm:p-8 text-center">
+                <div class="w-16 h-16 bg-white/10 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4 border border-white/10">👨‍💻</div>
+                <h2 class="text-xl sm:text-2xl font-bold text-white">Registrasi Data Agent Baru</h2>
+                <p class="text-sm text-slate-400 mt-2">Tambahkan agent ke dalam master data agar muncul di rekomendasi pencarian (ICRM) formulir QC.</p>
+            </div>
+            
+            <form id="agentForm" onsubmit="submitFormAgent(event)" class="p-6 sm:p-8 space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Lengkap Agent</label>
+                    <input type="text" id="agentNamaLengkap" name="namaLengkap" required placeholder="Contoh: Alfi Salim" 
+                        class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Akun ICRM <span class="text-rose-500">*</span></label>
+                    <input type="text" id="agentNamaICRM" name="namaICRM" required placeholder="Contoh: alfi.salim_icrm" 
+                        class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-indigo-700">
+                    <p class="text-[11px] text-slate-400 mt-1.5">Ini adalah nama yang akan dijadikan acuan rekomendasi pencarian di Formulir QC.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nomor Telepon</label>
+                    <input type="tel" id="agentTelp" name="noTelp" required placeholder="Contoh: 081234567890" 
+                        class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">KP (Kantor Perwakilan)</label>
+                        <input type="text" id="agentKP" name="kp" required placeholder="Contoh: JAKARTA SELATAN" 
+                            class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Region</label>
+                        <select id="agentRegion" name="region" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium text-slate-700">
+                            <option value="" disabled selected>Pilih Region...</option>
+                            <option value="JBB">JBB</option><option value="JBT">JBT</option><option value="JBTG">JBTG</option>
+                            <option value="JKB">JKB</option><option value="KAL">KAL</option><option value="BNT">BNT</option>
+                        </select>
+                    </div>
+                </div>
 
-        // Definisi 10+1 Parameter Mandatori sesuai permintaan
+                <div class="pt-4 border-t border-slate-100 mt-6">
+                    <button type="submit" id="btnSubmitAgent" class="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition-colors shadow-lg flex items-center justify-center gap-2">
+                        <span>Simpan Data Agent</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // GANTI DENGAN URL WEB APP GOOGLE SCRIPT ANDA YANG BARU
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0XtgHtB39wa55OwveCf92ozCo1Vc_B76_5rM9DkwfMl6oL_MNJla-Vwz8yp8RDt-/exec"; 
+
+        // Navigasi Tab
+        function switchTab(tab) {
+            const pageQC = document.getElementById('pageQC');
+            const pageAgent = document.getElementById('pageAgent');
+            const btnQC = document.getElementById('btnTabQC'); const btnQCMob = document.getElementById('btnTabQCMob');
+            const btnAg = document.getElementById('btnTabAgent'); const btnAgMob = document.getElementById('btnTabAgentMob');
+
+            const actDesk = "px-4 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all";
+            const inactDesk = "px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all";
+            const actMob = "flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all";
+            const inactMob = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all";
+
+            if(tab === 'qc') {
+                pageQC.classList.remove('hidden-tab'); pageAgent.classList.add('hidden-tab');
+                btnQC.className = actDesk; btnQCMob.className = actMob;
+                btnAg.className = inactDesk; btnAgMob.className = inactMob;
+            } else {
+                pageQC.classList.add('hidden-tab'); pageAgent.classList.remove('hidden-tab');
+                btnQC.className = inactDesk; btnQCMob.className = inactMob;
+                btnAg.className = actDesk; btnAgMob.className = actMob;
+            }
+        }
+
+        // Fitur Autocomplete: Tarik Data ICRM saat web dimuat
+        window.addEventListener('DOMContentLoaded', () => {
+            fetch(SCRIPT_URL) // Memanggil doGet()
+                .then(response => response.json())
+                .then(result => {
+                    if (result.status === "sukses" && result.data) {
+                        const datalist = document.getElementById('icrmList');
+                        datalist.innerHTML = ""; // Bersihkan list
+                        result.data.forEach(icrmName => {
+                            const option = document.createElement('option');
+                            option.value = icrmName;
+                            datalist.appendChild(option);
+                        });
+                        document.getElementById('agentSyncStatus').classList.remove('hidden');
+                    }
+                })
+                .catch(err => console.error("Gagal menarik daftar agen: ", err));
+        });
+
+        // Generate Checklist Mandatori
         const qcParameters = [
             { id: 'q1', title: "1. Salam Pembuka", desc: "Mengucapkan salam standar saat awal telepon", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
-            { id: 'q2', title: "2. Konfirmasi Kesediaan Verifikasi Data", desc: "Meminta izin pelanggan sebelum lanjut verifikasi", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
-            { id: 'q3', title: "3. Verifikasi Data", desc: "Mencocokkan data utama pelanggan dengan sistem", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
-            { id: 'q4', title: "4. Kesesuaian Edukasi", desc: "Memberikan informasi layanan/ketentuan yang benar", options: [{label: "Sesuai Penuh (15)", val: 15, class: 'val-mid'}, {label: "Sesuai Sebagian (10)", val: 10, class: 'val-mid'}, {label: "Tidak Sesuai (0)", val: 0, class: 'val-0'}] },
-            { id: 'q5', title: "5. Pemilihan Kalimat", desc: "Menggunakan bahasa baku, profesional & mudah dipahami", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
-            { id: 'q6', title: "6. Kejelasan Ucapan", desc: "Artikulasi suara jelas, volume pas, dan intonasi baik", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
-            { id: 'q7', title: "7. Etika Komunikasi", desc: "Tidak memotong pembicaraan, sopan, dan ramah", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
-            { id: 'q8', title: "8. Pencatatan Hasil Verifikasi", desc: "Agen melakukan pencatatan di dalam sistem", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
-            { id: 'q8_1', title: "8.1 Kesesuaian Pencatatan", desc: "Akurasi data yang dicatat sesuai dengan percakapan", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
-            { id: 'q9', title: "9. Konfirmasi Pertanyaan", desc: "Memastikan tidak ada lagi pertanyaan dari pelanggan", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
+            { id: 'q2', title: "2. Konfirmasi Kesediaan Verifikasi Data", desc: "Meminta izin pelanggan sebelum lanjut", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
+            { id: 'q3', title: "3. Verifikasi Data", desc: "Mencocokkan data utama pelanggan", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
+            { id: 'q4', title: "4. Kesesuaian Edukasi", desc: "Memberikan informasi layanan yang benar", options: [{label: "Sesuai Penuh (15)", val: 15, class: 'val-mid'}, {label: "Sebagian (10)", val: 10, class: 'val-mid'}, {label: "Tidak Sesuai (0)", val: 0, class: 'val-0'}] },
+            { id: 'q5', title: "5. Pemilihan Kalimat", desc: "Menggunakan bahasa profesional", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
+            { id: 'q6', title: "6. Kejelasan Ucapan", desc: "Artikulasi dan intonasi baik", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
+            { id: 'q7', title: "7. Etika Komunikasi", desc: "Tidak memotong pembicaraan, sopan", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
+            { id: 'q8', title: "8. Pencatatan Hasil", desc: "Agen mencatat di sistem", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
+            { id: 'q8_1', title: "8.1 Kesesuaian Pencatatan", desc: "Akurasi data yang dicatat", options: [{label: "Yes (10)", val: 10}, {label: "No (0)", val: 0}] },
+            { id: 'q9', title: "9. Konfirmasi Pertanyaan", desc: "Memastikan tidak ada pertanyaan sisa", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] },
             { id: 'q10', title: "10. Salam Penutup", desc: "Mengucapkan salam standar penutup", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] }
         ];
 
-        const maxTotalScore = 85;
-
-        // Render Formulir Penilaian Secara Dinamis
         const container = document.getElementById('checklistContainer');
-        
         qcParameters.forEach((param, index) => {
-            // Membuat grup radio button untuk setiap pertanyaan
             let optionsHtml = '';
             param.options.forEach((opt, i) => {
-                // Beri kelas khusus jika opsi tersebut bernilai 0 (Merah)
                 const radioClass = opt.val === 0 ? 'val-0' : (opt.class || 'val-full');
-                
                 optionsHtml += `
                     <div class="flex-1 radio-btn-group">
                         <input type="radio" id="${param.id}_opt${i}" name="${param.id}" value="${opt.val}" class="${radioClass}" required onchange="calculateScore()">
-                        <label for="${param.id}_opt${i}" class="block w-full text-center py-2.5 px-3 rounded-xl text-[13px] font-bold select-none h-full flex items-center justify-center">
+                        <label for="${param.id}_opt${i}" class="block w-full text-center py-2.5 px-2 rounded-xl text-[12px] sm:text-[13px] font-bold select-none h-full flex items-center justify-center leading-tight">
                             ${opt.label}
                         </label>
                     </div>
                 `;
             });
-
-            const questionHtml = `
-                <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            container.innerHTML += `
+                <div class="p-3 sm:p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                         <div class="sm:w-1/2">
-                            <h3 class="text-sm font-bold text-slate-800">${param.title}</h3>
-                            <p class="text-xs text-slate-500 mt-0.5">${param.desc}</p>
+                            <h3 class="text-[13px] sm:text-sm font-bold text-slate-800">${param.title}</h3>
+                            <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">${param.desc}</p>
                         </div>
-                        <div class="sm:w-1/2 flex gap-2">
-                            ${optionsHtml}
-                        </div>
+                        <div class="sm:w-1/2 flex gap-1.5 sm:gap-2">${optionsHtml}</div>
                     </div>
                 </div>
             `;
-            container.innerHTML += questionHtml;
         });
 
-        // Logika Penghitungan Skor Real-time
         function calculateScore() {
             let total = 0;
             const formData = new FormData(document.getElementById('qcForm'));
-            
             qcParameters.forEach(param => {
                 const val = formData.get(param.id);
-                if (val !== null) {
-                    total += parseInt(val);
-                }
+                if (val !== null) total += parseInt(val);
             });
-
-            // Update UI Desktop
+            
             document.getElementById('scoreTotalDesk').innerText = total;
             document.getElementById('scoreTotalMob').innerText = total;
             
-            const pct = (total / maxTotalScore) * 100;
+            const pct = (total / 85) * 100;
             document.getElementById('scorePctDesk').innerText = pct.toFixed(1) + '%';
             
             const bar = document.getElementById('scoreBarDesk');
             bar.style.width = pct + '%';
             
-            // Logika Warna Status berdasarkan persentase (opsional, standar QC 85%)
             const statusEl = document.getElementById('scoreStatusDesk');
-            if (total === 0) {
-                bar.className = "bg-slate-300 h-3 rounded-full transition-all duration-500";
-                statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>';
-            } else if (pct >= 90) {
-                bar.className = "bg-emerald-500 h-3 rounded-full transition-all duration-500";
-                statusEl.innerHTML = '<span class="text-emerald-400 font-bold">Excellent 🌟</span>';
-            } else if (pct >= 75) {
-                bar.className = "bg-indigo-500 h-3 rounded-full transition-all duration-500";
-                statusEl.innerHTML = '<span class="text-indigo-400 font-bold">Good 👍</span>';
-            } else if (pct >= 50) {
-                bar.className = "bg-amber-500 h-3 rounded-full transition-all duration-500";
-                statusEl.innerHTML = '<span class="text-amber-400 font-bold">Needs Improvement ⚠️</span>';
-            } else {
-                bar.className = "bg-rose-500 h-3 rounded-full transition-all duration-500";
-                statusEl.innerHTML = '<span class="text-rose-400 font-bold">Poor ❌</span>';
-            }
+            if (total === 0) { bar.className = "bg-slate-300 h-3 rounded-full transition-all duration-500"; statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>'; }
+            else if (pct >= 90) { bar.className = "bg-emerald-500 h-3 rounded-full transition-all duration-500"; statusEl.innerHTML = '<span class="text-emerald-400 font-bold">Excellent 🌟</span>'; }
+            else if (pct >= 75) { bar.className = "bg-indigo-500 h-3 rounded-full transition-all duration-500"; statusEl.innerHTML = '<span class="text-indigo-400 font-bold">Good 👍</span>'; }
+            else if (pct >= 50) { bar.className = "bg-amber-500 h-3 rounded-full transition-all duration-500"; statusEl.innerHTML = '<span class="text-amber-400 font-bold">Needs Improvement ⚠️</span>'; }
+            else { bar.className = "bg-rose-500 h-3 rounded-full transition-all duration-500"; statusEl.innerHTML = '<span class="text-rose-400 font-bold">Poor ❌</span>'; }
         }
 
-        // Simulasi Submit Data ke Server / Google Sheets
-        // Simulasi Submit Data ke Server / Google Sheets
-function submitForm(event) {
-    event.preventDefault(); // Mencegah reload halaman
-    
-    // GANTI URL DI BAWAH INI DENGAN URL APLIKASI WEB (APPS SCRIPT) YANG ANDA SALIN DI LANGKAH 3
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0XtgHtB39wa55OwveCf92ozCo1Vc_B76_5rM9DkwfMl6oL_MNJla-Vwz8yp8RDt-/exec"; 
-    
-    const btnDesk = document.getElementById('btnSubmitDesk');
-    const btnMob = document.getElementById('btnSubmitMob');
-    
-    // Ubah tombol jadi loading
-    const originalTextDesk = btnDesk.innerHTML;
-    btnDesk.innerHTML = "⏳ Menyimpan Data...";
-    btnMob.innerHTML = "⏳ Menyimpan...";
-    btnDesk.disabled = true;
-    btnMob.disabled = true;
+        // Submit Form QC
+        function submitFormQC(event) {
+            event.preventDefault();
+            const btnDesk = document.getElementById('btnSubmitDesk');
+            const btnMob = document.getElementById('btnSubmitMob');
+            
+            const originalText = btnDesk.innerHTML;
+            btnDesk.innerHTML = "⏳ Mengirim..."; btnMob.innerHTML = "⏳ Mengirim...";
+            btnDesk.disabled = true; btnMob.disabled = true;
 
-    // Kumpulkan Data dari form
-    const formData = new FormData(event.target);
-    const dataToSubmit = {
-        idPermohonan: document.getElementById('idPermohonan').value,
-        namaAgent: document.getElementById('namaAgent').value,
-        namaQC: document.getElementById('namaQC').value,
-        region: document.getElementById('region').value,
-        tglCall: document.getElementById('tglCall').value,
-        namaPemohon: document.getElementById('namaPemohon').value,
-        nomorKontak: document.getElementById('nomorKontak').value,
-        q1: formData.get('q1'), q2: formData.get('q2'), q3: formData.get('q3'),
-        q4: formData.get('q4'), q5: formData.get('q5'), q6: formData.get('q6'),
-        q7: formData.get('q7'), q8: formData.get('q8'), q8_1: formData.get('q8_1'),
-        q9: formData.get('q9'), q10: formData.get('q10'),
-        totalSkor: document.getElementById('scoreTotalDesk').innerText
-    };
+            const formData = new FormData(event.target);
+            const dataToSubmit = Object.fromEntries(formData.entries());
+            dataToSubmit.action = "inputQC"; // Penanda untuk Google Script
+            dataToSubmit.totalSkor = document.getElementById('scoreTotalDesk').innerText;
 
-    // Proses pengiriman data menggunakan Fetch API
-    fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(dataToSubmit),
-        headers: { "Content-Type": "text/plain;charset=utf-8" } // Menggunakan text/plain untuk melewati aturan CORS Google Script
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result.status === "sukses") {
-            alert(`✅ Berhasil! Data Penilaian Agent [${dataToSubmit.namaAgent}] dengan skor ${dataToSubmit.totalSkor}/85 telah tersimpan.`);
-            event.target.reset(); // Kosongkan form
-            calculateScore(); // Reset grafik nilai UI
-        } else {
-            alert("❌ Gagal menyimpan data: " + result.error);
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify(dataToSubmit),
+                headers: { "Content-Type": "text/plain;charset=utf-8" }
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.status === "sukses") {
+                    alert(`✅ Penilaian QC untuk agent ${dataToSubmit.namaAgent} berhasil disimpan!`);
+                    event.target.reset(); calculateScore();
+                } else alert("❌ Gagal: " + result.error);
+            })
+            .catch(err => alert("❌ Terjadi kesalahan jaringan."))
+            .finally(() => {
+                btnDesk.innerHTML = originalText; btnMob.innerHTML = "Kirim QC";
+                btnDesk.disabled = false; btnMob.disabled = false;
+            });
         }
-    })
-    .catch(error => {
-        alert("❌ Terjadi kesalahan jaringan. Gagal mengirim data.");
-        console.error(error);
-    })
-    .finally(() => {
-        // Kembalikan tombol ke keadaan semula baik sukses maupun gagal
-        btnDesk.innerHTML = originalTextDesk;
-        btnMob.innerHTML = "Kirim Penilaian";
-        btnDesk.disabled = false;
-        btnMob.disabled = false;
-    });
-}
+
+        // Submit Form Data Agent Baru
+        function submitFormAgent(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnSubmitAgent');
+            
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "⏳ Menyimpan Data...";
+            btn.disabled = true;
+
+            const formData = new FormData(event.target);
+            const dataToSubmit = Object.fromEntries(formData.entries());
+            dataToSubmit.action = "inputAgent"; // Penanda untuk Google Script
+
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify(dataToSubmit),
+                headers: { "Content-Type": "text/plain;charset=utf-8" }
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.status === "sukses") {
+                    alert(`✅ Data Agent ${dataToSubmit.namaICRM} berhasil diregistrasi! Nanti akan muncul di pencarian formulir QC saat web direfresh.`);
+                    event.target.reset();
+                    // Optional: refresh halaman otomatis untuk memperbarui list autocomplete
+                    window.location.reload(); 
+                } else alert("❌ Gagal: " + result.error);
+            })
+            .catch(err => alert("❌ Terjadi kesalahan jaringan."))
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
     </script>
 </body>
 </html>
