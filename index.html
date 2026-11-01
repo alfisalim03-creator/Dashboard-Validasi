@@ -833,6 +833,9 @@
                     });
                     
                     refreshDataBackground(); 
+                    
+                    // OTOMATIS SCROLL KE ATAS
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } 
                 else showToast('Gagal: ' + result.error, 'error');
             }).catch(err => showToast('Terjadi kesalahan jaringan.', 'error')).finally(() => { btnDesk.innerHTML = originalText; btnMob.innerHTML = "Kirim QC"; btnDesk.disabled = false; btnMob.disabled = false; });
@@ -851,6 +854,9 @@
                     showToast('Data agent berhasil disimpan'); 
                     event.target.reset(); 
                     refreshDataBackground(); 
+                    
+                    // OTOMATIS SCROLL KE ATAS JUGA DI TAB AGENT
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } 
                 else showToast('Gagal: ' + result.error, 'error');
             }).catch(err => showToast('Terjadi kesalahan jaringan.', 'error')).finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
