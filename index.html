@@ -18,6 +18,11 @@
         @keyframes toastIn { from { opacity: 0; transform: translateX(24px) scale(.96); } to { opacity: 1; transform: translateX(0) scale(1); } }
         @keyframes toastOut { to { opacity: 0; transform: translateX(24px); } }
 
+        /* LOADING SCREEN STYLES */
+        #loadingScreen { transition: opacity 0.5s ease, visibility 0.5s ease; }
+        #loadingScreen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+        .loader-circle { width: 48px; height: 48px; border: 4px solid #334155; border-top-color: #6366f1; border-radius: 50%; animation: spin 1s linear infinite; }
+
         button { transition: transform .15s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease; }
         button:not(:disabled):active { transform: scale(.97); }
         button:disabled { opacity: .75; cursor: not-allowed; }
@@ -53,6 +58,13 @@
     </style>
 </head>
 <body class="text-slate-800 pb-20">
+
+    <!-- OVERLAY LOADING SCREEN SAAT PERTAMA KALI BUKA -->
+    <div id="loadingScreen" class="fixed inset-0 z-[100] bg-slate-900 flex flex-col items-center justify-center">
+        <div class="loader-circle mb-5"></div>
+        <h2 class="text-white font-bold text-lg mb-1">Mengambil Data Server...</h2>
+        <p class="text-slate-400 text-xs font-medium">Mohon tunggu sebentar, sedang menyinkronkan data Google.</p>
+    </div>
 
     <!-- Navbar & Tab Switcher -->
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
@@ -345,6 +357,7 @@
             document.getElementById('filterBulanQC').value = yyyyMm;
             document.getElementById('filterBulanVal').value = yyyyMm;
             
+            // Proses Fetch Data Pertama Kali & Menghilangkan Loading Screen
             fetch(SCRIPT_URL).then(r => r.json()).then(result => {
                 if (result.status === "sukses") {
                     masterAgentData = result.dataAgent || [];
@@ -356,8 +369,23 @@
                     if(!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
                         switchReportView();
                     }
+
+                    // Hilangkan Loading Screen setelah data berhasil diambil
+                    setTimeout(() => {
+                        const loader = document.getElementById('loadingScreen');
+                        if(loader) {
+                            loader.classList.add('hide');
+                            setTimeout(() => loader.remove(), 600); // Hapus sepenuhnya dari HTML
+                        }
+                    }, 400); // Tambahan sedikit jeda animasi
                 }
-            }).catch(e => console.error(e));
+            }).catch(e => {
+                console.error(e);
+                showToast('Gagal memuat data dari server.', 'error');
+                // Tetap hilangkan loading jika error, agar pengguna tidak terjebak
+                const loader = document.getElementById('loadingScreen');
+                if(loader) loader.classList.add('hide');
+            });
         });
 
         function switchReportView() {
@@ -752,7 +780,6 @@
             statusEl.classList.remove('pop'); void statusEl.offsetWidth; statusEl.classList.add('pop');
         }
         
-        // FUNGSI BARU: Ambil data di latar belakang tanpa reload halaman
         function refreshDataBackground() {
             const syncStatus = document.getElementById('agentSyncStatus');
             if (syncStatus) syncStatus.innerHTML = '⏳ Menyinkronkan...';
@@ -772,7 +799,6 @@
             }).catch(e => console.error(e));
         }
 
-        // FUNGSI DIUBAH: Hapus reload halaman, ganti dengan reset form
         function submitFormQC(event) {
             event.preventDefault();
             const btnDesk = document.getElementById('btnSubmitDesk'), btnMob = document.getElementById('btnSubmitMob');
@@ -790,10 +816,9 @@
                 if (result.status === "sukses") { 
                     showToast('Penilaian QC berhasil disimpan'); 
                     
-                    event.target.reset(); // Bersihkan isi form
-                    tweenScore(0); // Kembalikan skor ke 0
+                    event.target.reset(); 
+                    tweenScore(0); 
                     
-                    // Reset warna progress bar dan tulisan
                     const bar = document.getElementById('scoreBarDesk');
                     const statusEl = document.getElementById('scoreStatusDesk');
                     bar.className = "bg-slate-300 h-3 rounded-full transition-all";
@@ -801,20 +826,18 @@
                     document.getElementById('scorePctDesk').innerText = '0%';
                     statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>';
                     
-                    // Reset status warna pada tombol checklist
                     document.querySelectorAll('.qc-item').forEach(item => {
                         item.classList.remove('answered', 'flagged');
                         const noteBox = item.querySelector('.note-accordion');
                         if(noteBox) noteBox.classList.remove('open');
                     });
                     
-                    refreshDataBackground(); // Sinkron data di latar belakang
+                    refreshDataBackground(); 
                 } 
                 else showToast('Gagal: ' + result.error, 'error');
             }).catch(err => showToast('Terjadi kesalahan jaringan.', 'error')).finally(() => { btnDesk.innerHTML = originalText; btnMob.innerHTML = "Kirim QC"; btnDesk.disabled = false; btnMob.disabled = false; });
         }
 
-        // FUNGSI DIUBAH: Hapus reload halaman, ganti dengan reset form
         function submitFormAgent(event) {
             event.preventDefault();
             const btn = document.getElementById('btnSubmitAgent'); const originalText = btn.innerHTML;
@@ -826,8 +849,8 @@
             .then(res => res.json()).then(result => {
                 if (result.status === "sukses") { 
                     showToast('Data agent berhasil disimpan'); 
-                    event.target.reset(); // Bersihkan form
-                    refreshDataBackground(); // Sinkron data di latar belakang
+                    event.target.reset(); 
+                    refreshDataBackground(); 
                 } 
                 else showToast('Gagal: ' + result.error, 'error');
             }).catch(err => showToast('Terjadi kesalahan jaringan.', 'error')).finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
