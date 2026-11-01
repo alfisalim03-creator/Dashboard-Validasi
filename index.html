@@ -78,12 +78,10 @@
 
     <!-- TAB 1: HALAMAN QC VALIDASI -->
     <div id="pageQC" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 animate-fade-up">
-        <!-- Changed to items-stretch so both columns are equal height -->
         <form id="qcForm" onsubmit="submitFormQC(event)" class="flex flex-col lg:flex-row items-stretch gap-6">
             
             <!-- Left Column: Identitas & Scoreboard -->
             <div class="w-full lg:w-4/12 relative">
-                <!-- Wrapper for sticky behavior within the equal-height column -->
                 <div class="sticky top-24 flex flex-col gap-6">
                     
                     <!-- Form Identitas -->
@@ -149,7 +147,7 @@
                 </div>
             </div>
 
-            <!-- Right Column: Form Checklist Mandatori (Made h-full to stretch) -->
+            <!-- Right Column: Form Checklist Mandatori -->
             <div class="w-full lg:w-8/12 flex flex-col h-full">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-8 flex-1">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
@@ -232,7 +230,7 @@
                 </div>
             </div>
 
-            <!-- Kartu Laporan Detil (Termasuk Tanggal Call) -->
+            <!-- Kartu Laporan Detil -->
             <div class="bg-white p-5 lg:p-6 rounded-2xl shadow-sm border border-slate-100">
                 <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">📑 Laporan Detil Harian QC</h3>
                 <div class="flex flex-col sm:flex-row gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl mb-6">
@@ -283,7 +281,7 @@
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Ranking Agent (Filtered) -->
+                <!-- Ranking Agent -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full">
                     <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">🏆 Top Ranking Validasi Agent</h3>
                     <div class="overflow-x-auto flex-1">
@@ -294,7 +292,7 @@
                     </div>
                 </div>
                 
-                <!-- Chart Validasi: Tren Periode & Tren Region -->
+                <!-- Chart Validasi -->
                 <div class="flex flex-col gap-6">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                         <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">📊 Tren Jumlah Validasi</h3>
@@ -314,7 +312,7 @@
     <div id="toastBox" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
-        // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI (Contoh di bawah jangan dihapus)
+        // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0XtgHtB39wa55OwveCf92ozCo1Vc_B76_5rM9DkwfMl6oL_MNJla-Vwz8yp8RDt-/exec"; 
         
         const paramMax = { q1: 5, q2: 5, q3: 20, q4: 15, q5: 10, q6: 10, q7: 10, q8: 5, q8_1: 10, q9: 5, q10: 5 };
@@ -753,7 +751,28 @@
             else { bar.className = "bg-rose-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-rose-400 font-bold">Poor ❌</span>'; }
             statusEl.classList.remove('pop'); void statusEl.offsetWidth; statusEl.classList.add('pop');
         }
+        
+        // FUNGSI BARU: Ambil data di latar belakang tanpa reload halaman
+        function refreshDataBackground() {
+            const syncStatus = document.getElementById('agentSyncStatus');
+            if (syncStatus) syncStatus.innerHTML = '⏳ Menyinkronkan...';
+            
+            fetch(SCRIPT_URL).then(r => r.json()).then(result => {
+                if (result.status === "sukses") {
+                    masterAgentData = result.dataAgent || [];
+                    const datalist = document.getElementById('icrmList'); datalist.innerHTML = "";
+                    masterAgentData.forEach(ag => { const o = document.createElement('option'); o.value = ag.namaICRM; datalist.appendChild(o); });
+                    if (syncStatus) syncStatus.innerHTML = '✅ Sinkron';
+                    
+                    masterQCData = result.dataQC || []; 
+                    if(!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
+                        switchReportView();
+                    }
+                }
+            }).catch(e => console.error(e));
+        }
 
+        // FUNGSI DIUBAH: Hapus reload halaman, ganti dengan reset form
         function submitFormQC(event) {
             event.preventDefault();
             const btnDesk = document.getElementById('btnSubmitDesk'), btnMob = document.getElementById('btnSubmitMob');
@@ -768,20 +787,48 @@
 
             fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataToSubmit), headers: { "Content-Type": "text/plain;charset=utf-8" } })
             .then(res => res.json()).then(result => {
-                if (result.status === "sukses") { showToast('Penilaian QC berhasil disimpan'); event.target.classList.add('pointer-events-none'); setTimeout(() => window.location.reload(), 1400); } 
+                if (result.status === "sukses") { 
+                    showToast('Penilaian QC berhasil disimpan'); 
+                    
+                    event.target.reset(); // Bersihkan isi form
+                    tweenScore(0); // Kembalikan skor ke 0
+                    
+                    // Reset warna progress bar dan tulisan
+                    const bar = document.getElementById('scoreBarDesk');
+                    const statusEl = document.getElementById('scoreStatusDesk');
+                    bar.className = "bg-slate-300 h-3 rounded-full transition-all";
+                    bar.style.width = '0%';
+                    document.getElementById('scorePctDesk').innerText = '0%';
+                    statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>';
+                    
+                    // Reset status warna pada tombol checklist
+                    document.querySelectorAll('.qc-item').forEach(item => {
+                        item.classList.remove('answered', 'flagged');
+                        const noteBox = item.querySelector('.note-accordion');
+                        if(noteBox) noteBox.classList.remove('open');
+                    });
+                    
+                    refreshDataBackground(); // Sinkron data di latar belakang
+                } 
                 else showToast('Gagal: ' + result.error, 'error');
             }).catch(err => showToast('Terjadi kesalahan jaringan.', 'error')).finally(() => { btnDesk.innerHTML = originalText; btnMob.innerHTML = "Kirim QC"; btnDesk.disabled = false; btnMob.disabled = false; });
         }
 
+        // FUNGSI DIUBAH: Hapus reload halaman, ganti dengan reset form
         function submitFormAgent(event) {
             event.preventDefault();
             const btn = document.getElementById('btnSubmitAgent'); const originalText = btn.innerHTML;
             btn.innerHTML = '<span class="spinner"></span>Menyimpan...'; btn.disabled = true;
             const formData = new FormData(event.target); const dataToSubmit = Object.fromEntries(formData.entries());
             dataToSubmit.action = "inputAgent";
+            
             fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataToSubmit), headers: { "Content-Type": "text/plain;charset=utf-8" } })
             .then(res => res.json()).then(result => {
-                if (result.status === "sukses") { showToast('Data agent berhasil disimpan'); event.target.classList.add('pointer-events-none'); setTimeout(() => window.location.reload(), 1400); } 
+                if (result.status === "sukses") { 
+                    showToast('Data agent berhasil disimpan'); 
+                    event.target.reset(); // Bersihkan form
+                    refreshDataBackground(); // Sinkron data di latar belakang
+                } 
                 else showToast('Gagal: ' + result.error, 'error');
             }).catch(err => showToast('Terjadi kesalahan jaringan.', 'error')).finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
         }
