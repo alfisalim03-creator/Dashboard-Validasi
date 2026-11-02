@@ -30,9 +30,13 @@
         .radio-btn-group label:hover { border-color: #a5b4fc; }
         .radio-btn-group label:active { transform: scale(.95); }
         .radio-btn-group input[type="radio"]:checked + label { animation: pop .3s ease; }
+        
+        /* CARD STATE COLORS */
         #checklistContainer .qc-item { transition: background-color .25s ease, border-color .3s ease; }
         #checklistContainer .qc-item.answered { border-color: #c7d2fe; }
         #checklistContainer .qc-item.flagged { border-color: #fda4af; background-color: #fff1f2; }
+        #checklistContainer .qc-item.perfect { border-color: #93c5fd; background-color: #eff6ff; } /* Biru untuk YES */
+        
         .accordion-content.note-accordion.open { max-height: 120px; }
         #scoreBarDesk { transition: width .6s cubic-bezier(.4,0,.2,1), background-color .4s ease; }
         #scoreStatusDesk { display: inline-block; }
@@ -63,7 +67,7 @@
     <div id="loadingScreen" class="fixed inset-0 z-[100] bg-slate-900 flex flex-col items-center justify-center">
         <div class="loader-circle mb-5"></div>
         <h2 class="text-white font-bold text-lg mb-1">Mengambil Data Server...</h2>
-        <p class="text-slate-400 text-xs font-medium">Sabar yaa Abang, Ncing...</p>
+        <p class="text-slate-400 text-xs font-medium">Mohon tunggu sebentar, sedang menyinkronkan data Google.</p>
     </div>
 
     <!-- Navbar & Tab Switcher -->
@@ -124,8 +128,9 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-semibold text-slate-500 mb-1.5">Region SBU</label>
-                                    <select id="regionQC" name="region" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
-                                        <option value="" disabled selected>Pilih...</option>
+                                    <!-- REGION DIMATIKAN EDITNYA AGAR OTOMATIS SAJA -->
+                                    <select id="regionQC" name="region" required class="w-full px-3.5 py-2.5 text-sm bg-slate-100 border border-slate-200 rounded-xl focus:outline-none font-bold text-slate-500 pointer-events-none" tabindex="-1">
+                                        <option value="" disabled selected>Otomatis Terisi...</option>
                                         <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
                                         <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
                                         <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option><option value="SIBT">SIBT</option>
@@ -422,17 +427,23 @@
             document.getElementById('viewReportValidasi').classList.toggle('hidden', type !== 'validasi');
             
             if(type === 'qc') {
-                processRankingsQC(); 
-                generateReport();    
+                generateReport(); // ini sudah otomatis memanggil processRankingsQC di dalamnya
             } else {
                 renderValidasiReport(); 
             }
         }
 
-        function processRankingsQC() {
+        function processRankingsQC(bulan) {
             if (!masterQCData.length) return;
+            const filteredData = masterQCData.filter(row => {
+                if(!row.timestamp) return false;
+                if (bulan === 'ALL') return true;
+                const d = new Date(row.timestamp);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` === bulan;
+            });
+
             const qcStats = {};
-            masterQCData.forEach(row => { qcStats[row.namaQC] = (qcStats[row.namaQC] || 0) + 1; });
+            filteredData.forEach(row => { qcStats[row.namaQC] = (qcStats[row.namaQC] || 0) + 1; });
             const qcRank = Object.keys(qcStats).map(n => ({ n, c: qcStats[n] })).sort((a, b) => b.c - a.c);
             const tblQC = document.getElementById('tblRankingQC'); tblQC.innerHTML = "";
             qcRank.forEach((qc, i) => tblQC.innerHTML += `<tr class="border-b border-slate-50"><td class="px-3 py-2 text-center">${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2 font-bold">${qc.n}</td><td class="px-3 py-2 text-center font-bold text-emerald-600">${qc.c.toLocaleString('id-ID')} Laporan</td></tr>`);
@@ -442,6 +453,9 @@
             const namaQCSelected = document.getElementById('filterNamaQC').value;
             const bulanSelected = document.getElementById('filterBulanQC').value; // 'ALL' atau 'YYYY-MM'
             const container = document.getElementById('reportContainer');
+
+            // UPDATE LEADERBOARD TOTAL VALIDASI BERDASARKAN BULAN YANG DIPILIH
+            processRankingsQC(bulanSelected);
 
             const filteredDetail = masterQCData.filter(row => {
                 if (!row.timestamp) return false;
@@ -453,7 +467,7 @@
             });
 
             if (!filteredDetail.length) { 
-                container.innerHTML = `<div class="text-center py-10 border-2 border-dashed border-rose-200 bg-rose-50 rounded-xl text-rose-500 font-medium text-sm">Tidak ada data.</div>`; 
+                container.innerHTML = `<div class="text-center py-10 border-2 border-dashed border-rose-200 bg-rose-50 rounded-xl text-rose-500 font-medium text-sm">Tidak ada data untuk kombinasi nama dan periode tersebut.</div>`; 
             } else {
                 const groupedByDate = {};
                 filteredDetail.forEach(row => {
@@ -640,7 +654,7 @@
                 agentStats[row.namaAgent].t += Number(row.totalSkor || 0); 
                 agentStats[row.namaAgent].c += 1;
             });
-            // Tidak ada limit .slice(0,10) - tampilkan semuanya
+            
             const agentRank = Object.keys(agentStats).map(n => ({ n, avg: agentStats[n].t / agentStats[n].c })).sort((a, b) => b.avg - a.avg);
             
             const tblAg = document.getElementById('tblRankingAgent'); tblAg.innerHTML = "";
@@ -733,17 +747,24 @@
             
             const paramId = radioEl.name;
             const maxScore = paramMax[paramId];
+            
+            // Cek apakah nilai radio yang dipilih kurang dari nilai maksimal (imperfect)
             const imperfect = Number(radioEl.value) < maxScore; 
             
-            if (imperfect) {
-                noteBox.classList.add('open');
-            } else {
-                noteBox.classList.remove('open');
-            }
-            
+            // Selalu tampilkan kotak catatan baik saat YES maupun NO
+            noteBox.classList.add('open');
             card.classList.add('answered');
-            card.classList.toggle('flagged', imperfect);
-            if (!imperfect) { const input = noteBox.querySelector('input'); if (input) input.value = ''; }
+            
+            // Jika kurang sempurna (Misal NO), background menjadi warna merah (flagged)
+            if (imperfect) {
+                card.classList.add('flagged');
+                card.classList.remove('perfect');
+            } 
+            // Jika poin penuh (YES), background berubah biru (perfect)
+            else {
+                card.classList.remove('flagged');
+                card.classList.add('perfect');
+            }
         }
 
         const qcCont = document.getElementById('checklistContainer');
@@ -777,7 +798,7 @@
                 </div>
                 <div class="note-accordion accordion-content mt-1">
                     <div class="pt-2 border-t border-slate-200 mt-2">
-                        <input type="text" name="c_${param.id}" placeholder="📝 Wajib/Opsional: Ketik catatan atau alasan pelanggaran..." class="w-full px-3 py-2 text-xs bg-white border border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-600 shadow-sm">
+                        <input type="text" name="c_${param.id}" placeholder="📝 Wajib/Opsional: Ketik catatan atau penekanan untuk agent..." class="w-full px-3 py-2 text-xs bg-white border border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-600 shadow-sm">
                     </div>
                 </div>
             </div>`;
@@ -814,7 +835,6 @@
             document.getElementById('scoreBarDesk').style.width = pct + '%';
             const bar = document.getElementById('scoreBarDesk'), statusEl = document.getElementById('scoreStatusDesk');
             
-            // LOGIKA SKOR YANG DIPERBARUI:
             if (total === 0) { 
                 bar.className = "bg-slate-300 h-3 rounded-full transition-all"; 
                 statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>'; 
@@ -852,7 +872,6 @@
                     
                     masterQCData = result.dataQC || []; 
                     
-                    // Simpan nilai pilihan agar tidak reset ke awal setelah sinkron
                     const valQc = document.getElementById('filterBulanQC')?.value;
                     const valVal = document.getElementById('filterPeriodeVal')?.value;
 
@@ -896,14 +915,12 @@
                     statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>';
                     
                     document.querySelectorAll('.qc-item').forEach(item => {
-                        item.classList.remove('answered', 'flagged');
+                        item.classList.remove('answered', 'flagged', 'perfect');
                         const noteBox = item.querySelector('.note-accordion');
                         if(noteBox) noteBox.classList.remove('open');
                     });
                     
                     refreshDataBackground(); 
-                    
-                    // OTOMATIS SCROLL KE ATAS
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } 
                 else showToast('Gagal: ' + result.error, 'error');
