@@ -10,90 +10,115 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; }
         
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-up { animation: fadeUp 0.45s cubic-bezier(.22,1,.36,1) backwards; }
-        html { scroll-behavior: smooth; }
+        /* CORE ANIMATIONS */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeTab { from { opacity: 0; transform: translateY(10px) scale(0.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @keyframes pop { 0% { transform: scale(.92); opacity: .6; } 60% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulseSoft { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         @keyframes toastIn { from { opacity: 0; transform: translateX(24px) scale(.96); } to { opacity: 1; transform: translateX(0) scale(1); } }
         @keyframes toastOut { to { opacity: 0; transform: translateX(24px); } }
 
-        /* LOADING SCREEN STYLES */
-        #loadingScreen { transition: opacity 0.5s ease, visibility 0.5s ease; }
-        #loadingScreen.hide { opacity: 0; visibility: hidden; pointer-events: none; }
-        .loader-circle { width: 48px; height: 48px; border: 4px solid #334155; border-top-color: #6366f1; border-radius: 50%; animation: spin 1s linear infinite; }
+        /* ANIMATION UTILITY CLASSES */
+        .animate-fade-up { animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+        .animate-fade-tab { animation: fadeTab 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        .pulse-soft { animation: pulseSoft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        
+        html { scroll-behavior: smooth; }
 
-        button { transition: transform .15s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease; }
-        button:not(:disabled):active { transform: scale(.97); }
-        button:disabled { opacity: .75; cursor: not-allowed; }
-        input, select { transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
-        .radio-btn-group label:hover { border-color: #a5b4fc; }
+        /* LOADING SCREEN STYLES */
+        #loadingScreen { transition: opacity 0.6s ease, backdrop-filter 0.6s ease, visibility 0.6s ease; backdrop-filter: blur(8px); }
+        #loadingScreen.hide { opacity: 0; backdrop-filter: blur(0px); visibility: hidden; pointer-events: none; }
+        .loader-circle { width: 52px; height: 52px; border: 4px solid rgba(255,255,255,0.1); border-top-color: #6366f1; border-left-color: #6366f1; border-radius: 50%; animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; }
+
+        /* ENHANCED INTERACTIVITY & HOVER EFFECTS */
+        .hover-lift { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -8px rgba(99, 102, 241, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05); z-index: 10; }
+        
+        button { transition: transform .15s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease, opacity .2s ease; }
+        button:not(:disabled):active { transform: scale(.95); }
+        button:disabled { opacity: .6; cursor: not-allowed; }
+        
+        /* INPUT FIELDS FOCUS ANIMATION */
+        input, select { transition: border-color .3s ease, box-shadow .3s ease, background-color .3s ease, transform .2s ease; }
+        input:focus:not([readonly]), select:focus:not([readonly]) { transform: translateY(-1px); box-shadow: 0 4px 12px -4px rgba(99, 102, 241, 0.2); }
+        
+        /* RADIO BUTTONS */
+        .radio-btn-group label:hover { border-color: #a5b4fc; background-color: #f8fafc; }
         .radio-btn-group label:active { transform: scale(.95); }
-        .radio-btn-group input[type="radio"]:checked + label { animation: pop .3s ease; }
+        .radio-btn-group input[type="radio"]:checked + label { animation: pop .35s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: center; }
         
         /* CARD STATE COLORS */
-        #checklistContainer .qc-item { transition: background-color .25s ease, border-color .3s ease; }
+        #checklistContainer .qc-item { transition: all 0.3s ease; }
+        #checklistContainer .qc-item:hover { border-color: #cbd5e1; background-color: #ffffff; }
         #checklistContainer .qc-item.answered { border-color: #c7d2fe; }
         #checklistContainer .qc-item.flagged { border-color: #fda4af; background-color: #fff1f2; }
-        #checklistContainer .qc-item.perfect { border-color: #93c5fd; background-color: #eff6ff; } /* Biru untuk YES */
+        #checklistContainer .qc-item.perfect { border-color: #93c5fd; background-color: #eff6ff; }
         
+        /* ACCORDION SMOOTHING */
+        .accordion-content { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease, padding 0.4s ease; transform-origin: top; }
+        .accordion-content.open { max-height: 1000px; opacity: 1; }
         .accordion-content.note-accordion.open { max-height: 120px; }
-        #scoreBarDesk { transition: width .6s cubic-bezier(.4,0,.2,1), background-color .4s ease; }
+        
+        /* SCOREBOARD PROGRESS BAR */
+        #scoreBarDesk { transition: width .8s cubic-bezier(0.34, 1.56, 0.64, 1), background-color .4s ease; }
         #scoreStatusDesk { display: inline-block; }
-        #scoreStatusDesk.pop, #agentSyncStatus { animation: pop .35s ease; }
+        #scoreStatusDesk.pop, #agentSyncStatus { animation: pop .4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        
+        /* UTILITIES */
         .spinner { display: inline-block; width: 14px; height: 14px; margin-right: 8px; vertical-align: -2px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
-        .toast { display: flex; align-items: center; gap: 10px; max-width: 320px; padding: 12px 16px; border-radius: 12px; background: #0f172a; color: #fff; font-size: 13px; font-weight: 600; border-left: 4px solid #10b981; box-shadow: 0 10px 25px -5px rgba(15,23,42,.35); animation: toastIn .35s cubic-bezier(.22,1,.36,1); }
+        .toast { display: flex; align-items: center; gap: 10px; max-width: 320px; padding: 12px 16px; border-radius: 12px; background: #0f172a; color: #fff; font-size: 13px; font-weight: 600; border-left: 4px solid #10b981; box-shadow: 0 10px 25px -5px rgba(15,23,42,.35); animation: toastIn .4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 9999; }
         .toast.error { border-left-color: #f43f5e; }
         .toast.out { animation: toastOut .3s ease forwards; }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
         
         .radio-btn-group input[type="radio"] { display: none; }
-        .radio-btn-group label { cursor: pointer; transition: all 0.2s ease; border: 1px solid #e2e8f0; background-color: white; color: #64748b; }
-        .radio-btn-group input[type="radio"]:checked + label { background-color: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); }
-        .radio-btn-group input[type="radio"].val-0:checked + label { background-color: #e11d48; border-color: #e11d48; box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.2); }
-        .radio-btn-group input[type="radio"].val-mid:checked + label { background-color: #0ea5e9; border-color: #0ea5e9; box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.2); }
-        
-        .accordion-content { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s cubic-bezier(.4,0,.2,1), opacity 0.3s ease; }
-        .accordion-content.open { max-height: 1000px; opacity: 1; }
+        .radio-btn-group label { cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e2e8f0; background-color: white; color: #64748b; }
+        .radio-btn-group input[type="radio"]:checked + label { background-color: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 4px 10px -2px rgba(79, 70, 229, 0.3); }
+        .radio-btn-group input[type="radio"].val-0:checked + label { background-color: #e11d48; border-color: #e11d48; box-shadow: 0 4px 10px -2px rgba(225, 29, 72, 0.3); }
+        .radio-btn-group input[type="radio"].val-mid:checked + label { background-color: #0ea5e9; border-color: #0ea5e9; box-shadow: 0 4px 10px -2px rgba(14, 165, 233, 0.3); }
         
         ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
         .hidden-tab { display: none !important; }
     </style>
 </head>
 <body class="text-slate-800 pb-20">
 
-    <!-- OVERLAY LOADING SCREEN SAAT PERTAMA KALI BUKA -->
-    <div id="loadingScreen" class="fixed inset-0 z-[100] bg-slate-900 flex flex-col items-center justify-center">
-        <div class="loader-circle mb-5"></div>
-        <h2 class="text-white font-bold text-lg mb-1">Mengambil Data Server...</h2>
-        <p class="text-slate-400 text-xs font-medium">Mohon bersabar yaa... Abang, Ncing...</p>
+    <!-- OVERLAY LOADING SCREEN -->
+    <div id="loadingScreen" class="fixed inset-0 z-[100] bg-slate-900/95 flex flex-col items-center justify-center">
+        <div class="loader-circle mb-6 shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+        <h2 class="text-white font-bold text-xl mb-2 tracking-tight">Menyiapkan Workspace...</h2>
+        <p class="text-indigo-200 text-xs font-medium pulse-soft bg-indigo-900/40 px-3 py-1.5 rounded-full border border-indigo-500/30">Mohon bersabar yaa... Abang, Ncing... ☕</p>
     </div>
 
     <!-- Navbar & Tab Switcher -->
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-lg">QC</div>
-                <div><h1 class="font-bold text-slate-800 leading-tight">Portal QC Validasi</h1><p class="text-[11px] text-slate-500 font-medium">Monitoring & Analitik</p></div>
+            <div class="flex items-center gap-3 hover-lift cursor-default">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 shadow-md text-white flex items-center justify-center font-black text-lg">QC</div>
+                <div><h1 class="font-bold text-slate-800 leading-tight tracking-tight">Portal QC Validasi</h1><p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Monitoring & Analitik</p></div>
             </div>
             <!-- Desktop Tabs -->
-            <div class="hidden sm:flex bg-slate-100 p-1 rounded-xl">
-                <button onclick="switchTab('qc')" id="btnTabQC" class="px-4 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">Form QC</button>
-                <button onclick="switchTab('agent')" id="btnTabAgent" class="px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Reg Agent</button>
-                <button onclick="switchTab('dashboard')" id="btnTabDash" class="px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Laporan QC</button>
+            <div class="hidden sm:flex bg-slate-100/80 p-1 rounded-xl shadow-inner border border-slate-200/50">
+                <button onclick="switchTab('qc')" id="btnTabQC" class="px-5 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 border border-slate-200/50 transition-all">Form QC</button>
+                <button onclick="switchTab('agent')" id="btnTabAgent" class="px-5 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-all">Reg Agent</button>
+                <button onclick="switchTab('dashboard')" id="btnTabDash" class="px-5 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-all">Laporan QC</button>
             </div>
         </div>
-        <!-- Mobile Tabs -->
-        <div class="sm:hidden flex bg-slate-100 p-1 m-2 rounded-xl overflow-x-auto">
-            <button onclick="switchTab('qc')" id="btnTabQCMob" class="flex-none px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">Form QC</button>
-            <button onclick="switchTab('agent')" id="btnTabAgentMob" class="flex-none px-4 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all">Reg Agent</button>
-            <button onclick="switchTab('dashboard')" id="btnTabDashMob" class="flex-none px-4 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all">Laporan</button>
+        <!-- Mobile Tabs (Segmented Control Style) -->
+        <div class="sm:hidden flex bg-slate-100 p-1.5 mx-3 my-2 rounded-xl border border-slate-200 shadow-inner">
+            <button onclick="switchTab('qc')" id="btnTabQCMob" class="flex-1 px-2 py-2 text-[11px] font-bold rounded-lg bg-white shadow-sm text-indigo-600 border border-slate-200/50 transition-all">Form QC</button>
+            <button onclick="switchTab('agent')" id="btnTabAgentMob" class="flex-1 px-2 py-2 text-[11px] font-bold rounded-lg text-slate-500 transition-all">Reg Agent</button>
+            <button onclick="switchTab('dashboard')" id="btnTabDashMob" class="flex-1 px-2 py-2 text-[11px] font-bold rounded-lg text-slate-500 transition-all">Laporan</button>
         </div>
     </nav>
 
     <!-- TAB 1: HALAMAN QC VALIDASI -->
-    <div id="pageQC" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 animate-fade-up">
+    <div id="pageQC" class="tab-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 animate-fade-tab">
         <form id="qcForm" onsubmit="submitFormQC(event)" class="flex flex-col lg:flex-row items-stretch gap-6">
             
             <!-- Left Column: Identitas & Scoreboard -->
@@ -101,24 +126,24 @@
                 <div class="sticky top-24 flex flex-col gap-6">
                     
                     <!-- Form Identitas -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-6 hover-lift">
                         <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 pb-3 border-b border-slate-100 flex items-center justify-between">
-                            <span>📋 Data Identitas</span><span id="agentSyncStatus" class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100 hidden">✅ Sinkron</span>
+                            <span>📋 Data Identitas</span><span id="agentSyncStatus" class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 shadow-sm hidden">✅ Sinkron</span>
                         </h2>
                         <div class="space-y-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Agent ICRM</label>
+                            <div class="group">
+                                <label class="block text-xs font-semibold text-slate-500 mb-1.5 group-focus-within:text-indigo-600 transition-colors">Nama Agent ICRM</label>
                                 <input type="text" id="namaAgent" name="namaAgent" list="icrmList" required autocomplete="off" placeholder="Ketik pencarian..." 
-                                    class="w-full px-3.5 py-2.5 text-sm bg-indigo-50/50 border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all font-bold text-indigo-700" oninput="autoFillRegion(this.value)">
+                                    class="w-full px-3.5 py-2.5 text-sm bg-indigo-50/30 border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all font-bold text-indigo-700" oninput="autoFillRegion(this.value)">
                                 <datalist id="icrmList"></datalist>
                             </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1.5">ID Permohonan</label>
+                            <div class="group">
+                                <label class="block text-xs font-semibold text-slate-500 mb-1.5 group-focus-within:text-indigo-600 transition-colors">ID Permohonan</label>
                                 <input type="text" name="idPermohonan" required placeholder="Contoh: PRM-202610-001" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
                             </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama QC</label>
-                                <select name="namaQC" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
+                            <div class="group">
+                                <label class="block text-xs font-semibold text-slate-500 mb-1.5 group-focus-within:text-indigo-600 transition-colors">Nama QC</label>
+                                <select name="namaQC" required class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer hover:bg-slate-100 transition-colors">
                                     <option value="" disabled selected>Pilih Nama QC...</option>
                                     <option value="Mahmed Farissa">Mahmed Farissa</option>
                                     <option value="Nurul Fatima Assyahrul Hidayati">Nurul Fatima Assyahrul Hidayati</option>
@@ -126,39 +151,39 @@
                                 </select>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Region SBU</label>
+                                <div class="group">
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Region SBU 🔒</label>
                                     <!-- REGION DIMATIKAN EDITNYA AGAR OTOMATIS SAJA -->
-                                    <select id="regionQC" name="region" required class="w-full px-3.5 py-2.5 text-sm bg-slate-100 border border-slate-200 rounded-xl focus:outline-none font-bold text-slate-500 pointer-events-none" tabindex="-1">
-                                        <option value="" disabled selected>Region</option>
+                                    <select id="regionQC" name="region" required class="w-full px-3.5 py-2.5 text-sm bg-slate-100/80 border border-slate-200 rounded-xl focus:outline-none font-bold text-slate-500 pointer-events-none opacity-80" tabindex="-1">
+                                        <option value="" disabled selected>Otomatis...</option>
                                         <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
                                         <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
                                         <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option><option value="SIBT">SIBT</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tgl Call Agent</label>
-                                    <input type="date" name="tglCall" required onclick="try{this.showPicker();}catch(e){}" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer">
+                                <div class="group">
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1.5 group-focus-within:text-indigo-600 transition-colors">Tgl Call Agent</label>
+                                    <input type="date" name="tglCall" required onclick="try{this.showPicker();}catch(e){}" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium text-slate-700 cursor-pointer hover:bg-slate-100 transition-colors">
                                 </div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nama Pemohon</label>
+                            <div class="group">
+                                <label class="block text-xs font-semibold text-slate-500 mb-1.5 group-focus-within:text-indigo-600 transition-colors">Nama Pemohon</label>
                                 <input type="text" name="namaPemohon" required placeholder="Nama pelanggan..." class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
                             </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nomor Dihubungi</label>
+                            <div class="group">
+                                <label class="block text-xs font-semibold text-slate-500 mb-1.5 group-focus-within:text-indigo-600 transition-colors">Nomor Dihubungi</label>
                                 <input type="tel" name="nomorKontak" required placeholder="Contoh: 0812..." class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 font-medium">
                             </div>
                         </div>
                     </div>
 
                     <!-- Scoreboard Desktop -->
-                    <div class="bg-slate-900 rounded-2xl shadow-xl border border-slate-800 p-5 lg:p-6 text-white hidden lg:block">
+                    <div class="bg-gradient-to-b from-slate-900 to-slate-800 rounded-2xl shadow-xl border border-slate-700 p-5 lg:p-6 text-white hidden lg:block hover-lift">
                         <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Skor Kepatuhan Agent</p>
                         <div class="flex items-end gap-2 mb-4"><h2 class="text-5xl font-black" id="scoreTotalDesk">0</h2><span class="text-lg font-medium text-slate-400 mb-1.5">/ 100</span></div>
-                        <div class="w-full bg-slate-800 rounded-full h-3 mb-2"><div id="scoreBarDesk" class="bg-indigo-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div></div>
-                        <div class="flex justify-between items-center text-xs font-semibold text-slate-400 mb-6"><span>Persentase: <span id="scorePctDesk" class="text-white">0%</span></span><span id="scoreStatusDesk" class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Menunggu...</span></div>
-                        <button type="submit" id="btnSubmitDesk" class="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-[0_0_15px_rgba(79,70,229,0.3)]">Kirim Penilaian QC</button>
+                        <div class="w-full bg-slate-800 rounded-full h-3 mb-2 shadow-inner border border-slate-700/50"><div id="scoreBarDesk" class="bg-indigo-500 h-3 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" style="width: 0%"></div></div>
+                        <div class="flex justify-between items-center text-xs font-semibold text-slate-400 mb-6"><span>Persentase: <span id="scorePctDesk" class="text-white">0%</span></span><span id="scoreStatusDesk" class="px-2 py-0.5 rounded-md bg-slate-800/80 border border-slate-700 text-slate-300">Menunggu...</span></div>
+                        <button type="submit" id="btnSubmitDesk" class="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-[0_4px_14px_0_rgba(79,70,229,0.39)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.23)] transition-all">Kirim Penilaian QC</button>
                     </div>
                     
                 </div>
@@ -169,55 +194,58 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 lg:p-8 flex-1">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
                         <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">✅ 10 Parameter Mandatori</h2>
-                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">Max: 100 Poin</span>
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-200 shadow-sm">Max: 100 Poin</span>
                     </div>
                     <div id="checklistContainer" class="space-y-4"></div>
                 </div>
             </div>
             
             <!-- Mobile Scoreboard -->
-            <div class="block lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
+            <div class="block lg:hidden fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-slate-200 p-4 shadow-[0_-4px_15px_-3px_rgba(0,0,0,0.1)] z-40">
                 <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
                     <div><p class="text-[10px] font-bold text-slate-400 uppercase">Total Skor</p><p class="text-xl font-black text-slate-800"><span id="scoreTotalMob">0</span><span class="text-xs text-slate-400">/100</span></p></div>
-                    <button type="submit" id="btnSubmitMob" class="flex-1 py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-sm">Kirim QC</button>
+                    <button type="submit" id="btnSubmitMob" class="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-md transition-colors">Kirim QC</button>
                 </div>
             </div>
         </form>
     </div>
 
     <!-- TAB 2: REGISTRASI AGENT -->
-    <div id="pageAgent" class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 hidden-tab animate-fade-up">
-        <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden">
-            <div class="bg-slate-900 p-6 sm:p-8 text-center"><h2 class="text-xl font-bold text-white">Registrasi Data Agent Baru</h2></div>
+    <div id="pageAgent" class="tab-content max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 hidden-tab">
+        <div class="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden hover-lift">
+            <div class="bg-slate-900 p-6 sm:p-8 text-center bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')]">
+                <h2 class="text-xl font-bold text-white tracking-tight">Registrasi Data Agent Baru</h2>
+                <p class="text-xs text-slate-400 mt-1">Tambahkan agent ke dalam database untuk di-QC.</p>
+            </div>
             <form id="agentForm" onsubmit="submitFormAgent(event)" class="p-6 sm:p-8 space-y-5">
-                <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Lengkap Agent</label><input type="text" name="namaLengkap" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium"></div>
-                <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Akun ICRM *</label><input type="text" name="namaICRM" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-bold text-indigo-700"></div>
+                <div class="group"><label class="block text-sm font-semibold text-slate-700 mb-1.5 group-focus-within:text-indigo-600 transition-colors">Nama Lengkap Agent</label><input type="text" name="namaLengkap" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"></div>
+                <div class="group"><label class="block text-sm font-semibold text-slate-700 mb-1.5 group-focus-within:text-indigo-600 transition-colors">Nama Akun ICRM *</label><input type="text" name="namaICRM" required class="w-full px-4 py-3 text-sm bg-indigo-50/30 border border-indigo-200 rounded-xl font-bold text-indigo-700 focus:ring-2 focus:ring-indigo-500/30 focus:outline-none"></div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Nomor Telepon</label><input type="tel" name="noTelp" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium"></div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Region SBU</label>
-                        <select name="region" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-700">
+                    <div class="group"><label class="block text-sm font-semibold text-slate-700 mb-1.5 group-focus-within:text-indigo-600 transition-colors">Nomor Telepon</label><input type="tel" name="noTelp" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium focus:ring-2 focus:ring-indigo-500/20 focus:outline-none"></div>
+                    <div class="group">
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5 group-focus-within:text-indigo-600 transition-colors">Region SBU</label>
+                        <select name="region" required class="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-700 cursor-pointer focus:ring-2 focus:ring-indigo-500/20 focus:outline-none hover:bg-slate-100">
                             <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
                             <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
                             <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option><option value="SIBT">SIBT</option>
                         </select>
                     </div>
                 </div>
-                <button type="submit" id="btnSubmitAgent" class="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-lg mt-4">Simpan Data Agent</button>
+                <button type="submit" id="btnSubmitAgent" class="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-lg shadow-slate-900/20 mt-4 transition-all hover:shadow-xl hover:shadow-slate-900/30 hover:-translate-y-0.5">Simpan Data Agent</button>
             </form>
         </div>
     </div>
 
     <!-- TAB 3: DASHBOARD & LAPORAN -->
-    <div id="pageDashboard" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 hidden-tab animate-fade-up pb-10">
+    <div id="pageDashboard" class="tab-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6 hidden-tab pb-10">
         
         <!-- Dropdown Pemilihan Jenis Laporan -->
-        <div class="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+        <div class="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover-lift">
             <div>
                 <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">📊 Analitik & Laporan</h2>
                 <p class="text-[11px] text-slate-500 mt-1">Pilih jenis laporan yang ingin ditampilkan di bawah.</p>
             </div>
-            <select id="reportTypeSelector" onchange="switchReportView()" class="w-full sm:w-auto px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 cursor-pointer">
+            <select id="reportTypeSelector" onchange="switchReportView()" class="w-full sm:w-auto px-4 py-2 bg-indigo-50/50 border border-indigo-200 rounded-lg text-sm font-bold text-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 cursor-pointer hover:bg-indigo-50 transition-colors shadow-sm">
                 <option value="qc">Laporan Kinerja Tim QC</option>
                 <option value="validasi">Laporan Validasi Agent</option>
             </select>
@@ -226,20 +254,20 @@
         <!-- ============================================== -->
         <!-- VIEW 1: LAPORAN KINERJA TIM QC                 -->
         <!-- ============================================== -->
-        <div id="viewReportQC" class="space-y-6">
+        <div id="viewReportQC" class="report-view space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Leaderboard QC -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col hover-lift">
                     <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">🥇 Leaderboard Kinerja Tim QC</h3>
                     <div class="overflow-x-auto flex-1">
                         <table class="w-full text-left text-sm">
-                            <thead class="text-xs text-slate-500 bg-slate-50 uppercase"><tr><th class="px-3 py-2">Peringkat</th><th class="px-3 py-2">Nama Petugas QC</th><th class="px-3 py-2 text-center">Total Validasi</th></tr></thead>
+                            <thead class="text-xs text-slate-500 bg-slate-50 uppercase border-b border-slate-100"><tr><th class="px-3 py-2.5 rounded-tl-lg rounded-bl-lg">Peringkat</th><th class="px-3 py-2.5">Nama Petugas QC</th><th class="px-3 py-2.5 text-center rounded-tr-lg rounded-br-lg">Total Validasi</th></tr></thead>
                             <tbody id="tblRankingQC" class="divide-y divide-slate-100"></tbody>
                         </table>
                     </div>
                 </div>
                 <!-- Tren Harian QC (Chart.js) -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col hover-lift">
                     <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">📈 Tren Harian Agent yang di QC</h3>
                     <div class="relative flex-1 w-full" style="min-height: 200px;">
                         <canvas id="chartTrenQC"></canvas>
@@ -248,18 +276,18 @@
             </div>
 
             <!-- Kartu Laporan Detil -->
-            <div class="bg-white p-5 lg:p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div class="bg-white p-5 lg:p-6 rounded-2xl shadow-sm border border-slate-100 hover-lift">
                 <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">📑 Laporan Detil Harian QC</h3>
-                <div class="flex flex-col sm:flex-row gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl mb-6">
-                    <div class="flex-1">
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Pilih Nama QC</label>
-                        <select id="filterNamaQC" onchange="generateReport()" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg cursor-pointer">
+                <div class="flex flex-col sm:flex-row gap-4 p-4 bg-slate-50 border border-slate-200 rounded-xl mb-6 shadow-inner">
+                    <div class="flex-1 group">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 group-focus-within:text-indigo-600 transition-colors">Pilih Nama QC</label>
+                        <select id="filterNamaQC" onchange="triggerReportAnimation(generateReport)" class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-lg cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm transition-all">
                             <option value="Mahmed Farissa">Mahmed Farissa</option><option value="Nurul Fatima Assyahrul Hidayati">Nurul Fatima Assyahrul Hidayati</option><option value="Agung Setiawan">Agung Setiawan</option>
                         </select>
                     </div>
-                    <div class="flex-1">
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Pilih Periode</label>
-                        <select id="filterBulanQC" onchange="generateReport()" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg cursor-pointer">
+                    <div class="flex-1 group">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 group-focus-within:text-indigo-600 transition-colors">Pilih Periode</label>
+                        <select id="filterBulanQC" onchange="triggerReportAnimation(generateReport)" class="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-lg cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 shadow-sm transition-all">
                             <option value="ALL">Semua Periode</option>
                             <!-- Pilihan bulan otomatis dimuat JS -->
                         </select>
@@ -272,21 +300,21 @@
         <!-- ============================================== -->
         <!-- VIEW 2: LAPORAN VALIDASI AGENT                 -->
         <!-- ============================================== -->
-        <div id="viewReportValidasi" class="space-y-6 hidden">
+        <div id="viewReportValidasi" class="report-view space-y-6 hidden">
             <!-- Filter Laporan Validasi -->
-            <div class="flex flex-col sm:flex-row gap-3 p-4 bg-white shadow-sm border border-slate-100 rounded-xl">
-                <div class="flex-1">
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter Region SBU</label>
-                    <select id="filterRegionVal" onchange="renderValidasiReport()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer font-medium text-slate-700">
+            <div class="flex flex-col sm:flex-row gap-4 p-4 bg-white shadow-sm border border-slate-200 rounded-xl hover-lift">
+                <div class="flex-1 group">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 group-focus-within:text-indigo-600 transition-colors">Filter Region SBU</label>
+                    <select id="filterRegionVal" onchange="triggerReportAnimation(renderValidasiReport)" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer font-medium text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
                         <option value="ALL">Semua Region</option>
                         <option value="SBU">SBU</option><option value="SBT">SBT</option><option value="SBS">SBS</option>
                         <option value="JKB">JKB</option><option value="JBB">JBB</option><option value="JBTG">JBTG</option>
                         <option value="JBT">JBT</option><option value="BNT">BNT</option><option value="KAL">KAL</option><option value="SIBT">SIBT</option>
                     </select>
                 </div>
-                <div class="flex-1">
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter Periode</label>
-                    <select id="filterPeriodeVal" onchange="renderValidasiReport()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer font-medium text-slate-700">
+                <div class="flex-1 group">
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 group-focus-within:text-indigo-600 transition-colors">Filter Periode</label>
+                    <select id="filterPeriodeVal" onchange="triggerReportAnimation(renderValidasiReport)" class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer font-medium text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
                         <option value="ALL">Semua Periode</option>
                         <!-- Pilihan bulan otomatis dimuat JS -->
                     </select>
@@ -295,12 +323,12 @@
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Ranking Agent (Berbatas Tinggi & Scroll) -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full hover-lift">
                     <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">🏆 Top Ranking Validasi Agent</h3>
-                    <div class="overflow-y-auto flex-1 pr-2" style="max-height: 380px;">
+                    <div class="overflow-y-auto flex-1 pr-2 custom-scrollbar" style="max-height: 380px;">
                         <table class="w-full text-left text-sm relative">
-                            <thead class="text-xs text-slate-500 bg-slate-50 uppercase sticky top-0 z-10 shadow-sm">
-                                <tr><th class="px-3 py-2">Peringkat</th><th class="px-3 py-2">Nama Agent</th><th class="px-3 py-2 text-right">Rata-rata Skor</th></tr>
+                            <thead class="text-xs text-slate-500 bg-slate-50/90 backdrop-blur uppercase sticky top-0 z-10 shadow-sm border-b border-slate-200">
+                                <tr><th class="px-3 py-2.5 rounded-tl-lg">Peringkat</th><th class="px-3 py-2.5">Nama Agent</th><th class="px-3 py-2.5 text-right rounded-tr-lg">Rata-rata Skor</th></tr>
                             </thead>
                             <tbody id="tblRankingAgent" class="divide-y divide-slate-100"></tbody>
                         </table>
@@ -309,12 +337,12 @@
                 
                 <!-- Chart Validasi -->
                 <div class="flex flex-col gap-6">
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                        <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">📊 Tren Jumlah Validasi</h3>
-                        <p class="text-[10px] text-slate-400 mb-2" id="labelTrenValDesc">Menampilkan tren per bulan.</p>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover-lift">
+                        <h3 class="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">📊 Tren Jumlah Validasi</h3>
+                        <p class="text-[10px] text-slate-400 mb-3 font-medium" id="labelTrenValDesc">Menampilkan tren per bulan.</p>
                         <div class="relative w-full" style="height: 180px;"><canvas id="chartTrenValidasi"></canvas></div>
                     </div>
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover-lift">
                         <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">🗺️ Distribusi Validasi per Region</h3>
                         <div class="relative w-full" style="height: 180px;"><canvas id="chartRegionValidasi"></canvas></div>
                     </div>
@@ -340,22 +368,58 @@
         let chartTrenVal = null;
         let chartRegionVal = null;
 
-        // Navigasi Tab Utama
+        // Navigasi Tab Utama yang Diperbarui dengan Animasi
         function switchTab(tab) {
             const tabs = ['qc', 'agent', 'dashboard'];
             tabs.forEach(t => {
                 const isMatch = (t === tab);
-                document.getElementById('page' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dashboard'))?.classList.toggle('hidden-tab', !isMatch);
-                if (document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash')))
-                    document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash')).className = isMatch ? "px-4 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all" : "px-4 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-700 transition-all";
-                if (document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob'))
-                    document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob').className = isMatch ? "flex-none px-4 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all" : "flex-none px-4 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all";
+                const pageId = 'page' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dashboard');
+                const pageEl = document.getElementById(pageId);
+                
+                if (pageEl) {
+                    if (isMatch) {
+                        pageEl.classList.remove('hidden-tab');
+                        // Re-trigger CSS animation
+                        pageEl.classList.remove('animate-fade-tab');
+                        void pageEl.offsetWidth; // trigger reflow
+                        pageEl.classList.add('animate-fade-tab');
+                    } else {
+                        pageEl.classList.add('hidden-tab');
+                    }
+                }
+                
+                // Desktop Buttons Styling
+                const btnDesk = document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash'));
+                if (btnDesk) {
+                    btnDesk.className = isMatch 
+                        ? "px-5 py-1.5 text-sm font-bold rounded-lg bg-white shadow-sm text-indigo-600 border border-slate-200/50 transition-all" 
+                        : "px-5 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-all";
+                }
+                
+                // Mobile Buttons Styling (Segmented Style)
+                const btnMob = document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob');
+                if (btnMob) {
+                    btnMob.className = isMatch 
+                        ? "flex-1 px-2 py-2 text-[11px] font-bold rounded-lg bg-white shadow-sm text-indigo-600 border border-slate-200/50 transition-all" 
+                        : "flex-1 px-2 py-2 text-[11px] font-bold rounded-lg text-slate-500 hover:bg-slate-200/30 transition-all";
+                }
             });
+            
             if(tab === 'dashboard') { switchReportView(); }
         }
 
+        // Pemicu animasi pembaharuan form/tabel saat filter diubah
+        function triggerReportAnimation(callbackFunction) {
+            const activeView = document.querySelector('.report-view:not(.hidden)');
+            if(activeView) {
+                activeView.classList.remove('animate-fade-tab');
+                void activeView.offsetWidth;
+                activeView.classList.add('animate-fade-tab');
+            }
+            callbackFunction();
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
-            // Proses Fetch Data Pertama Kali & Menghilangkan Loading Screen
             fetch(SCRIPT_URL).then(r => r.json()).then(result => {
                 if (result.status === "sukses") {
                     masterAgentData = result.dataAgent || [];
@@ -365,21 +429,20 @@
                     
                     masterQCData = result.dataQC || []; 
                     
-                    // Eksekusi Pembuatan Dropdown Bulan
                     populatePeriodeDropdowns();
 
                     if(!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
                         switchReportView();
                     }
 
-                    // Hilangkan Loading Screen
+                    // Menghilangkan Loading Screen dengan Fade Out Lembut
                     setTimeout(() => {
                         const loader = document.getElementById('loadingScreen');
                         if(loader) {
                             loader.classList.add('hide');
-                            setTimeout(() => loader.remove(), 600);
+                            setTimeout(() => loader.remove(), 600); // Hapus elemen dari DOM setelah animasi css selesai
                         }
-                    }, 400);
+                    }, 500);
                 }
             }).catch(e => {
                 console.error(e);
@@ -389,7 +452,6 @@
             });
         });
         
-        // FUNGSI BARU: Dinamis ambil bulan/tahun dari data server
         function populatePeriodeDropdowns() {
             const uniqueMonths = new Set();
             masterQCData.forEach(row => {
@@ -397,14 +459,11 @@
                     const d = new Date(row.timestamp);
                     const m = String(d.getMonth() + 1).padStart(2, '0');
                     const y = d.getFullYear();
-                    uniqueMonths.add(`${y}-${m}`); // Format YYYY-MM
+                    uniqueMonths.add(`${y}-${m}`); 
                 }
             });
             
-            // Urutkan dari yg terbaru ke terlama
             const sortedMonths = Array.from(uniqueMonths).sort().reverse();
-            
-            // Format tulisan Bahasa Indonesia (Contoh: Januari 2026)
             const formatter = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' });
 
             let optionsHtml = `<option value="ALL">Semua Periode</option>`;
@@ -423,12 +482,20 @@
 
         function switchReportView() {
             const type = document.getElementById('reportTypeSelector').value;
-            document.getElementById('viewReportQC').classList.toggle('hidden', type !== 'qc');
-            document.getElementById('viewReportValidasi').classList.toggle('hidden', type !== 'validasi');
+            const viewQC = document.getElementById('viewReportQC');
+            const viewVal = document.getElementById('viewReportValidasi');
             
             if(type === 'qc') {
-                generateReport(); // ini sudah otomatis memanggil processRankingsQC di dalamnya
+                viewVal.classList.add('hidden');
+                viewQC.classList.remove('hidden');
+                // Re-trigger animation
+                viewQC.classList.remove('animate-fade-tab'); void viewQC.offsetWidth; viewQC.classList.add('animate-fade-tab');
+                generateReport(); 
             } else {
+                viewQC.classList.add('hidden');
+                viewVal.classList.remove('hidden');
+                // Re-trigger animation
+                viewVal.classList.remove('animate-fade-tab'); void viewVal.offsetWidth; viewVal.classList.add('animate-fade-tab');
                 renderValidasiReport(); 
             }
         }
@@ -446,15 +513,14 @@
             filteredData.forEach(row => { qcStats[row.namaQC] = (qcStats[row.namaQC] || 0) + 1; });
             const qcRank = Object.keys(qcStats).map(n => ({ n, c: qcStats[n] })).sort((a, b) => b.c - a.c);
             const tblQC = document.getElementById('tblRankingQC'); tblQC.innerHTML = "";
-            qcRank.forEach((qc, i) => tblQC.innerHTML += `<tr class="border-b border-slate-50"><td class="px-3 py-2 text-center">${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2 font-bold">${qc.n}</td><td class="px-3 py-2 text-center font-bold text-emerald-600">${qc.c.toLocaleString('id-ID')} Laporan</td></tr>`);
+            qcRank.forEach((qc, i) => tblQC.innerHTML += `<tr class="border-b border-slate-50 hover:bg-slate-50/80 transition-colors"><td class="px-3 py-2.5 text-center">${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2.5 font-bold text-slate-700">${qc.n}</td><td class="px-3 py-2.5 text-center font-bold text-emerald-600"><span class="bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100">${qc.c.toLocaleString('id-ID')} Laporan</span></td></tr>`);
         }
 
         function generateReport() {
             const namaQCSelected = document.getElementById('filterNamaQC').value;
-            const bulanSelected = document.getElementById('filterBulanQC').value; // 'ALL' atau 'YYYY-MM'
+            const bulanSelected = document.getElementById('filterBulanQC').value; 
             const container = document.getElementById('reportContainer');
 
-            // UPDATE LEADERBOARD TOTAL VALIDASI BERDASARKAN BULAN YANG DIPILIH
             processRankingsQC(bulanSelected);
 
             const filteredDetail = masterQCData.filter(row => {
@@ -467,7 +533,7 @@
             });
 
             if (!filteredDetail.length) { 
-                container.innerHTML = `<div class="text-center py-10 border-2 border-dashed border-rose-200 bg-rose-50 rounded-xl text-rose-500 font-medium text-sm">Tidak ada data untuk kombinasi nama dan periode tersebut.</div>`; 
+                container.innerHTML = `<div class="text-center py-10 border-2 border-dashed border-rose-200 bg-rose-50 rounded-xl text-rose-500 font-medium text-sm animate-fade-tab">Tidak ada data untuk kombinasi nama dan periode tersebut.</div>`; 
             } else {
                 const groupedByDate = {};
                 filteredDetail.forEach(row => {
@@ -507,9 +573,9 @@
                     const agentsWithErrors = agentNames.filter(name => Object.keys(agentsMap[name].errors).length > 0);
 
                     if (agentsWithErrors.length === 0) {
-                        imperfectHtml = `<p class="text-xs text-emerald-600 font-bold bg-emerald-50 px-3 py-2 rounded-lg mt-2 border border-emerald-100">🎉 Semua agent mendapatkan poin sempurna (100) pada tanggal ini.</p>`;
+                        imperfectHtml = `<p class="text-xs text-emerald-600 font-bold bg-emerald-50 px-3 py-2.5 rounded-lg mt-2 border border-emerald-200 shadow-sm flex items-center gap-2"><span>🎉</span> Semua agent mendapatkan poin sempurna (100) pada tanggal ini.</p>`;
                     } else {
-                        imperfectHtml = `<div class="mt-4 space-y-3"><p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">👤 Klik pada nama agent untuk melihat detail pelanggaran:</p>`;
+                        imperfectHtml = `<div class="mt-4 space-y-3"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">👤 Klik pada nama agent untuk melihat detail pelanggaran:</p>`;
                         
                         agentsWithErrors.forEach(name => {
                             const agentData = agentsMap[name];
@@ -517,35 +583,35 @@
                             
                             Object.keys(agentData.errors).forEach(errKey => {
                                 const errDetail = agentData.errors[errKey];
-                                const countBadge = errDetail.count > 1 ? `<span class="text-rose-500 font-bold text-[10px] bg-rose-100 px-1.5 py-0.5 rounded-md ml-1.5 border border-rose-200">${errDetail.count}x Gagal</span>` : '';
+                                const countBadge = errDetail.count > 1 ? `<span class="text-rose-600 font-bold text-[10px] bg-rose-100 px-1.5 py-0.5 rounded-md ml-1.5 border border-rose-200 shadow-sm">${errDetail.count}x Gagal</span>` : '';
                                 
                                 let commentsHtml = '';
                                 if (errDetail.comments.length > 0) {
-                                    commentsHtml = `<div class="mt-1.5 pl-3 border-l-[2px] border-indigo-200 ml-1.5 space-y-1">
+                                    commentsHtml = `<div class="mt-1.5 pl-3 border-l-2 border-indigo-300 ml-1.5 space-y-1.5">
                                         ${errDetail.comments.map(c => {
                                             const formatTglCall = c.tglCall ? new Date(c.tglCall).toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}) : '';
                                             return `
-                                            <div class="flex items-start sm:items-center gap-2 text-[11px] text-slate-600">
-                                                <div class="flex-1"><span class="text-indigo-400">💬 Catatan:</span> ${c.text}</div>
-                                                ${formatTglCall ? `<div class="whitespace-nowrap font-semibold text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md border border-slate-200 shadow-sm flex items-center gap-1"><span class="text-slate-400">📅</span> ${formatTglCall}</div>` : ''}
+                                            <div class="flex items-start sm:items-center gap-2 text-[11px] text-slate-600 bg-slate-50/50 p-1.5 rounded-md">
+                                                <div class="flex-1"><span class="text-indigo-500 font-semibold">💬 Catatan:</span> ${c.text}</div>
+                                                ${formatTglCall ? `<div class="whitespace-nowrap font-semibold text-[10px] text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200 shadow-sm flex items-center gap-1"><span class="text-slate-400">📅</span> ${formatTglCall}</div>` : ''}
                                             </div>`;
                                         }).join('')}
                                     </div>`;
                                 }
                                 
-                                errorListHtml += `<li class="flex flex-col mb-3 pb-3 border-b border-rose-100/60 last:border-0 last:mb-0">
-                                    <div class="flex items-center text-xs font-bold text-slate-700"><span class="text-rose-500 mr-2 text-[10px]">▪</span> ${questionMap[errKey]} ${countBadge}</div>
+                                errorListHtml += `<li class="flex flex-col mb-3 pb-3 border-b border-rose-100/60 last:border-0 last:mb-0 last:pb-0">
+                                    <div class="flex items-center text-[12px] font-bold text-slate-700"><span class="text-rose-500 mr-2 text-[10px]">▪</span> ${questionMap[errKey]} ${countBadge}</div>
                                     ${commentsHtml}
                                 </li>`;
                             });
                             
-                            imperfectHtml += `<div class="border border-rose-200 bg-rose-50/40 rounded-xl overflow-hidden shadow-sm">
-                                <div onclick="toggleAgentAccordion(this)" class="cursor-pointer px-4 py-3 bg-rose-50/80 hover:bg-rose-100/70 transition-colors flex items-center justify-between">
+                            imperfectHtml += `<div class="border border-rose-200 bg-rose-50/40 rounded-xl overflow-hidden shadow-sm hover:border-rose-300 transition-colors">
+                                <div onclick="toggleAgentAccordion(this)" class="cursor-pointer px-4 py-3 bg-rose-50/80 hover:bg-rose-100 transition-colors flex items-center justify-between group">
                                     <div class="flex items-center gap-2">
-                                        <span class="font-black text-slate-800 text-sm">⚠️ ${name}</span>
-                                        <span class="text-[10px] font-bold bg-white text-slate-500 px-2 py-0.5 rounded-md border border-rose-200">Di-QC ${agentData.totalEvals}x</span>
+                                        <span class="font-black text-slate-800 text-sm group-hover:text-rose-700 transition-colors">⚠️ ${name}</span>
+                                        <span class="text-[10px] font-bold bg-white text-slate-500 px-2 py-0.5 rounded-md border border-rose-200 shadow-sm">Di-QC ${agentData.totalEvals}x</span>
                                     </div>
-                                    <span class="arrow-icon text-xs font-bold text-slate-500 transition-transform duration-300">▼</span>
+                                    <span class="arrow-icon text-xs font-bold text-slate-500 transition-transform duration-300 group-hover:text-slate-800 bg-white w-6 h-6 flex items-center justify-center rounded-full border border-rose-200 shadow-sm">▼</span>
                                 </div>
                                 <div class="accordion-content bg-white px-4">
                                     <ul class="py-3 pl-1 space-y-2">${errorListHtml}</ul>
@@ -555,9 +621,9 @@
                         imperfectHtml += `</div>`;
                     }
 
-                    htmlReport += `<div class="animate-fade-up border border-slate-200 rounded-xl overflow-hidden shadow-sm mb-4" style="animation-delay:${Math.min(di, 8) * 60}ms">
-                        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex justify-between items-center"><h4 class="font-bold text-slate-800 text-sm">📅 ${date}</h4><span class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md">${agentNames.length} Agent di-QC</span></div>
-                        <div class="p-4">${imperfectHtml}</div>
+                    htmlReport += `<div class="animate-fade-up border border-slate-200 rounded-xl overflow-hidden shadow-sm mb-4" style="animation-delay:${Math.min(di, 8) * 50}ms">
+                        <div class="bg-gradient-to-r from-slate-50 to-white px-4 py-3 border-b border-slate-200 flex justify-between items-center"><h4 class="font-bold text-slate-800 text-sm">📅 ${date}</h4><span class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded-md border border-indigo-200">${agentNames.length} Agent di-QC</span></div>
+                        <div class="p-4 bg-white">${imperfectHtml}</div>
                     </div>`;
                 });
                 container.innerHTML = htmlReport;
@@ -579,11 +645,10 @@
             filtered.forEach(row => {
                 const d = new Date(row.timestamp);
                 let dateStr;
-                // Jika Semua Periode, grup berdasarkan Bulan agar chart rapi
                 if (bulan === 'ALL') {
                     dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
                 } else {
-                    dateStr = d.toISOString().split('T')[0]; // Berdasarkan hari
+                    dateStr = d.toISOString().split('T')[0]; 
                 }
 
                 if(!groupedByDateStr[dateStr]) {
@@ -613,8 +678,11 @@
                     borderColor: colors[i],
                     backgroundColor: colors[i] + '20',
                     borderWidth: 2,
-                    tension: 0.3,
-                    fill: true
+                    tension: 0.4, // Membuat kurva lebih halus
+                    fill: true,
+                    pointBackgroundColor: colors[i],
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 };
             });
 
@@ -625,8 +693,14 @@
                 data: { labels, datasets },
                 options: { 
                     responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: {size: 11} } } }, 
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: {size: 11, family: "'Inter', sans-serif"} } },
+                        tooltip: { backgroundColor: '#1e293b', titleFont: {family: "'Inter', sans-serif"}, bodyFont: {family: "'Inter', sans-serif"}, padding: 10, cornerRadius: 8 } 
+                    }, 
+                    scales: { 
+                        y: { beginAtZero: true, ticks: { precision: 0, font: {family: "'Inter', sans-serif"} }, grid: { color: '#f1f5f9' } },
+                        x: { ticks: { font: {family: "'Inter', sans-serif"} }, grid: { display: false } }
+                    },
                     interaction: { mode: 'index', intersect: false }
                 }
             });
@@ -634,7 +708,7 @@
 
         function renderValidasiReport() {
             const filterRegion = document.getElementById('filterRegionVal').value;
-            const filterBulan = document.getElementById('filterPeriodeVal').value; // ALL atau YYYY-MM
+            const filterBulan = document.getElementById('filterPeriodeVal').value; 
 
             const filteredData = masterQCData.filter(row => {
                 if(!row.timestamp) return false;
@@ -647,7 +721,7 @@
                 return passRegion && passPeriode;
             });
 
-            // 1. UPDATE RANKING AGENT (SEMUA AGENT)
+            // 1. UPDATE RANKING AGENT
             const agentStats = {};
             filteredData.forEach(row => {
                 if (!agentStats[row.namaAgent]) agentStats[row.namaAgent] = { t: 0, c: 0 };
@@ -659,9 +733,9 @@
             
             const tblAg = document.getElementById('tblRankingAgent'); tblAg.innerHTML = "";
             if(agentRank.length === 0) {
-                tblAg.innerHTML = `<tr><td colspan="3" class="px-3 py-6 text-center text-slate-500 font-medium text-xs">Belum ada data validasi sesuai filter.</td></tr>`;
+                tblAg.innerHTML = `<tr><td colspan="3" class="px-3 py-10 text-center text-slate-500 font-medium text-xs bg-slate-50/50 rounded-lg">Belum ada data validasi sesuai filter.</td></tr>`;
             } else {
-                agentRank.forEach((ag, i) => tblAg.innerHTML += `<tr class="border-b border-slate-50"><td class="px-3 py-2 text-center">${i<3?['🏆','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2 font-bold">${ag.n}</td><td class="px-3 py-2 text-right"><span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-lg font-bold">${ag.avg.toFixed(1)}/100</span></td></tr>`);
+                agentRank.forEach((ag, i) => tblAg.innerHTML += `<tr class="border-b border-slate-50 hover:bg-slate-50/80 transition-colors"><td class="px-3 py-2.5 text-center">${i<3?['🏆','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2.5 font-bold text-slate-700">${ag.n}</td><td class="px-3 py-2.5 text-right"><span class="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-lg font-bold border border-indigo-100 shadow-sm">${ag.avg.toFixed(1)}/100</span></td></tr>`);
             }
 
             // 2. CHART TREN VALIDASI
@@ -696,17 +770,24 @@
                         borderColor: '#0ea5e9', 
                         backgroundColor: '#0ea5e920', 
                         fill: true, 
-                        tension: 0.3, 
+                        tension: 0.4, // kurva halus
                         borderWidth: 2, 
                         pointBackgroundColor: '#0ea5e9',
-                        pointRadius: 4
+                        pointRadius: 4,
+                        pointHoverRadius: 6
                     }] 
                 },
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } }, 
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { backgroundColor: '#1e293b', titleFont: {family: "'Inter', sans-serif"}, bodyFont: {family: "'Inter', sans-serif"}, padding: 10, cornerRadius: 8 }
+                    }, 
+                    scales: { 
+                        y: { beginAtZero: true, ticks: { precision: 0, font: {family: "'Inter', sans-serif"} }, grid: { color: '#f1f5f9' } },
+                        x: { ticks: { font: {family: "'Inter', sans-serif"} }, grid: { display: false } }
+                    } 
                 }
             });
 
@@ -723,9 +804,19 @@
                 type: 'bar',
                 data: { 
                     labels: sortedRegions, 
-                    datasets: [{ label: 'Total Validasi', data: sortedRegions.map(r => regionMap[r]), backgroundColor: '#8b5cf6', borderRadius: 4 }] 
+                    datasets: [{ label: 'Total Validasi', data: sortedRegions.map(r => regionMap[r]), backgroundColor: '#8b5cf6', borderRadius: 6, hoverBackgroundColor: '#7c3aed' }] 
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { backgroundColor: '#1e293b', titleFont: {family: "'Inter', sans-serif"}, bodyFont: {family: "'Inter', sans-serif"}, padding: 10, cornerRadius: 8 }
+                    }, 
+                    scales: { 
+                        y: { beginAtZero: true, ticks: { precision: 0, font: {family: "'Inter', sans-serif"} }, grid: { color: '#f1f5f9' } },
+                        x: { ticks: { font: {family: "'Inter', sans-serif"} }, grid: { display: false } }
+                    } 
+                }
             });
         }
 
@@ -735,7 +826,7 @@
             const content = headerElement.nextElementSibling;
             const arrow = headerElement.querySelector('.arrow-icon');
             content.classList.toggle('open');
-            content.style.maxHeight = content.classList.contains('open') ? content.scrollHeight + 'px' : '';
+            content.style.maxHeight = content.classList.contains('open') ? content.scrollHeight + 20 + 'px' : '';
             if (arrow) arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
         }
 
@@ -747,21 +838,15 @@
             
             const paramId = radioEl.name;
             const maxScore = paramMax[paramId];
-            
-            // Cek apakah nilai radio yang dipilih kurang dari nilai maksimal (imperfect)
             const imperfect = Number(radioEl.value) < maxScore; 
             
-            // Selalu tampilkan kotak catatan baik saat YES maupun NO
             noteBox.classList.add('open');
             card.classList.add('answered');
             
-            // Jika kurang sempurna (Misal NO), background menjadi warna merah (flagged)
             if (imperfect) {
                 card.classList.add('flagged');
                 card.classList.remove('perfect');
-            } 
-            // Jika poin penuh (YES), background berubah biru (perfect)
-            else {
+            } else {
                 card.classList.remove('flagged');
                 card.classList.add('perfect');
             }
@@ -791,14 +876,14 @@
                     <label for="${param.id}_opt${i}" class="block w-full text-center py-2 px-1 rounded-lg text-[11px] sm:text-[13px] font-bold select-none h-full flex items-center justify-center leading-tight">${opt.label}</label>
                 </div>`;
             });
-            qcCont.innerHTML += `<div class="qc-item animate-fade-up p-3.5 rounded-xl border border-slate-200 bg-slate-50/30 hover:bg-slate-50 transition-colors" style="animation-delay:${index * 35}ms">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
-                    <div class="sm:w-1/2"><h3 class="text-[13px] sm:text-sm font-bold text-slate-800">${param.title}</h3><p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">${param.desc}</p></div>
+            qcCont.innerHTML += `<div class="qc-item animate-fade-up p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-slate-50/30 shadow-sm" style="animation-delay:${index * 40}ms">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                    <div class="sm:w-1/2"><h3 class="text-[13px] sm:text-sm font-bold text-slate-800">${param.title}</h3><p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 leading-tight">${param.desc}</p></div>
                     <div class="sm:w-1/2 flex gap-1">${optionsHtml}</div>
                 </div>
                 <div class="note-accordion accordion-content mt-1">
-                    <div class="pt-2 border-t border-slate-200 mt-2">
-                        <input type="text" name="c_${param.id}" placeholder="📝 Wajib/Opsional: Ketik catatan atau penekanan untuk agent..." class="w-full px-3 py-2 text-xs bg-white border border-indigo-200 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-600 shadow-sm">
+                    <div class="pt-3 border-t border-slate-200/60 mt-3 group">
+                        <input type="text" name="c_${param.id}" placeholder="📝 Wajib/Opsional: Ketik catatan untuk agent..." class="w-full px-3 py-2 text-xs bg-white border border-slate-200 hover:border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 text-slate-600 shadow-inner transition-all">
                     </div>
                 </div>
             </div>`;
@@ -807,10 +892,10 @@
         let shownScore = 0, currentScore = 0, scoreRAF;
         function tweenScore(to) {
             currentScore = to; cancelAnimationFrame(scoreRAF);
-            const from = shownScore, t0 = performance.now(), dur = 450;
+            const from = shownScore, t0 = performance.now(), dur = 600; // sedikit diperlambat agar lebih dramatis
             const els = [document.getElementById('scoreTotalDesk'), document.getElementById('scoreTotalMob')];
             const step = now => {
-                const p = Math.min((now - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+                const p = Math.min((now - t0) / dur, 1), e = 1 - Math.pow(1 - p, 4); // ease out quart
                 shownScore = Math.round(from + (to - from) * e);
                 els.forEach(el => el.innerText = shownScore);
                 if (p < 1) scoreRAF = requestAnimationFrame(step);
@@ -823,7 +908,7 @@
             const ic = document.createElement('span'); ic.textContent = type === 'success' ? '✅' : '❌';
             const tx = document.createElement('span'); tx.textContent = msg;
             t.append(ic, tx); document.getElementById('toastBox').appendChild(t);
-            setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 3200);
+            setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 3500);
         }
 
         function calculateScore() {
@@ -836,24 +921,24 @@
             const bar = document.getElementById('scoreBarDesk'), statusEl = document.getElementById('scoreStatusDesk');
             
             if (total === 0) { 
-                bar.className = "bg-slate-300 h-3 rounded-full transition-all"; 
+                bar.className = "bg-slate-300 h-3 rounded-full transition-all shadow-none"; 
                 statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>'; 
             }
             else if (pct === 100) { 
-                bar.className = "bg-emerald-500 h-3 rounded-full transition-all"; 
-                statusEl.innerHTML = '<span class="text-emerald-400 font-bold">Excellent 🌟</span>'; 
+                bar.className = "bg-emerald-400 h-3 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(52,211,153,0.6)]"; 
+                statusEl.innerHTML = '<span class="text-emerald-400 font-bold tracking-wide">Excellent 🌟</span>'; 
             }
             else if (pct >= 95) { 
-                bar.className = "bg-indigo-500 h-3 rounded-full transition-all"; 
-                statusEl.innerHTML = '<span class="text-indigo-400 font-bold">Good 👍</span>'; 
+                bar.className = "bg-indigo-400 h-3 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(129,140,248,0.6)]"; 
+                statusEl.innerHTML = '<span class="text-indigo-400 font-bold tracking-wide">Good 👍</span>'; 
             }
             else if (pct >= 50) { 
-                bar.className = "bg-amber-500 h-3 rounded-full transition-all"; 
-                statusEl.innerHTML = '<span class="text-amber-400 font-bold">Needs Improvement ⚠️</span>'; 
+                bar.className = "bg-amber-400 h-3 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(251,191,36,0.6)]"; 
+                statusEl.innerHTML = '<span class="text-amber-400 font-bold tracking-wide">Needs Improvement ⚠️</span>'; 
             }
             else { 
-                bar.className = "bg-rose-500 h-3 rounded-full transition-all"; 
-                statusEl.innerHTML = '<span class="text-rose-400 font-bold">Poor ❌</span>'; 
+                bar.className = "bg-rose-500 h-3 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(244,63,94,0.6)]"; 
+                statusEl.innerHTML = '<span class="text-rose-400 font-bold tracking-wide">Poor ❌</span>'; 
             }
             
             statusEl.classList.remove('pop'); void statusEl.offsetWidth; statusEl.classList.add('pop');
@@ -861,14 +946,14 @@
         
         function refreshDataBackground() {
             const syncStatus = document.getElementById('agentSyncStatus');
-            if (syncStatus) syncStatus.innerHTML = '⏳ Menyinkronkan...';
+            if (syncStatus) { syncStatus.innerHTML = '⏳ Menyinkronkan...'; syncStatus.classList.add('pulse-soft'); }
             
             fetch(SCRIPT_URL).then(r => r.json()).then(result => {
                 if (result.status === "sukses") {
                     masterAgentData = result.dataAgent || [];
                     const datalist = document.getElementById('icrmList'); datalist.innerHTML = "";
                     masterAgentData.forEach(ag => { const o = document.createElement('option'); o.value = ag.namaICRM; datalist.appendChild(o); });
-                    if (syncStatus) syncStatus.innerHTML = '✅ Sinkron';
+                    if (syncStatus) { syncStatus.innerHTML = '✅ Sinkron'; syncStatus.classList.remove('pulse-soft'); }
                     
                     masterQCData = result.dataQC || []; 
                     
@@ -881,7 +966,9 @@
                     if(valVal) document.getElementById('filterPeriodeVal').value = valVal;
 
                     if(!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
-                        switchReportView();
+                        // Jangan trigger full animasi saat data di refresh background, cukup ubah isinya
+                        if(document.getElementById('reportTypeSelector').value === 'qc') { generateReport(); } 
+                        else { renderValidasiReport(); }
                     }
                 }
             }).catch(e => console.error(e));
@@ -909,7 +996,7 @@
                     
                     const bar = document.getElementById('scoreBarDesk');
                     const statusEl = document.getElementById('scoreStatusDesk');
-                    bar.className = "bg-slate-300 h-3 rounded-full transition-all";
+                    bar.className = "bg-slate-300 h-3 rounded-full transition-all shadow-none";
                     bar.style.width = '0%';
                     document.getElementById('scorePctDesk').innerText = '0%';
                     statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>';
