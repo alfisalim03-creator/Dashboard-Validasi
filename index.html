@@ -813,11 +813,29 @@
             document.getElementById('scorePctDesk').innerText = pct.toFixed(1) + '%';
             document.getElementById('scoreBarDesk').style.width = pct + '%';
             const bar = document.getElementById('scoreBarDesk'), statusEl = document.getElementById('scoreStatusDesk');
-            if (total === 0) { bar.className = "bg-slate-300 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>'; }
-            else if (pct >= 90) { bar.className = "bg-emerald-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-emerald-400 font-bold">Excellent 🌟</span>'; }
-            else if (pct >= 75) { bar.className = "bg-indigo-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-indigo-400 font-bold">Good 👍</span>'; }
-            else if (pct >= 50) { bar.className = "bg-amber-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-amber-400 font-bold">Needs Improvement ⚠️</span>'; }
-            else { bar.className = "bg-rose-500 h-3 rounded-full transition-all"; statusEl.innerHTML = '<span class="text-rose-400 font-bold">Poor ❌</span>'; }
+            
+            // LOGIKA SKOR YANG DIPERBARUI:
+            if (total === 0) { 
+                bar.className = "bg-slate-300 h-3 rounded-full transition-all"; 
+                statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>'; 
+            }
+            else if (pct === 100) { 
+                bar.className = "bg-emerald-500 h-3 rounded-full transition-all"; 
+                statusEl.innerHTML = '<span class="text-emerald-400 font-bold">Excellent 🌟</span>'; 
+            }
+            else if (pct >= 95) { 
+                bar.className = "bg-indigo-500 h-3 rounded-full transition-all"; 
+                statusEl.innerHTML = '<span class="text-indigo-400 font-bold">Good 👍</span>'; 
+            }
+            else if (pct >= 50) { 
+                bar.className = "bg-amber-500 h-3 rounded-full transition-all"; 
+                statusEl.innerHTML = '<span class="text-amber-400 font-bold">Needs Improvement ⚠️</span>'; 
+            }
+            else { 
+                bar.className = "bg-rose-500 h-3 rounded-full transition-all"; 
+                statusEl.innerHTML = '<span class="text-rose-400 font-bold">Poor ❌</span>'; 
+            }
+            
             statusEl.classList.remove('pop'); void statusEl.offsetWidth; statusEl.classList.add('pop');
         }
         
