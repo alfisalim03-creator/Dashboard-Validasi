@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal QC Validasi & Laporan</title>
+    <link rel="preconnect" href="https://script.google.com">
+    <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; }
         
         /* CORE ANIMATIONS */
@@ -419,39 +423,6 @@
             callbackFunction();
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            fetch(SCRIPT_URL).then(r => r.json()).then(result => {
-                if (result.status === "sukses") {
-                    masterAgentData = result.dataAgent || [];
-                    const datalist = document.getElementById('icrmList'); datalist.innerHTML = "";
-                    masterAgentData.forEach(ag => { const o = document.createElement('option'); o.value = ag.namaICRM; datalist.appendChild(o); });
-                    document.getElementById('agentSyncStatus').classList.remove('hidden');
-                    
-                    masterQCData = result.dataQC || []; 
-                    
-                    populatePeriodeDropdowns();
-
-                    if(!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
-                        switchReportView();
-                    }
-
-                    // Menghilangkan Loading Screen dengan Fade Out Lembut
-                    setTimeout(() => {
-                        const loader = document.getElementById('loadingScreen');
-                        if(loader) {
-                            loader.classList.add('hide');
-                            setTimeout(() => loader.remove(), 600); // Hapus elemen dari DOM setelah animasi css selesai
-                        }
-                    }, 500);
-                }
-            }).catch(e => {
-                console.error(e);
-                showToast('Gagal memuat data dari server.', 'error');
-                const loader = document.getElementById('loadingScreen');
-                if(loader) loader.classList.add('hide');
-            });
-        });
-        
         function populatePeriodeDropdowns() {
             const uniqueMonths = new Set();
             masterQCData.forEach(row => {
@@ -867,6 +838,7 @@
             { id: 'q10', title: "10. Salam Penutup", desc: "Mengucapkan salam standar penutup", options: [{label: "Yes (5)", val: 5}, {label: "No (0)", val: 0}] }
         ];
 
+        let qcHtml = '';
         qcParameters.forEach((param, index) => {
             let optionsHtml = '';
             param.options.forEach((opt, i) => {
@@ -876,7 +848,7 @@
                     <label for="${param.id}_opt${i}" class="block w-full text-center py-2 px-1 rounded-lg text-[11px] sm:text-[13px] font-bold select-none h-full flex items-center justify-center leading-tight">${opt.label}</label>
                 </div>`;
             });
-            qcCont.innerHTML += `<div class="qc-item animate-fade-up p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-slate-50/30 shadow-sm" style="animation-delay:${index * 40}ms">
+            qcHtml += `<div class="qc-item animate-fade-up p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-slate-50/30 shadow-sm" style="animation-delay:${index * 40}ms">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                     <div class="sm:w-1/2"><h3 class="text-[13px] sm:text-sm font-bold text-slate-800">${param.title}</h3><p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 leading-tight">${param.desc}</p></div>
                     <div class="sm:w-1/2 flex gap-1">${optionsHtml}</div>
@@ -888,6 +860,8 @@
                 </div>
             </div>`;
         });
+
+        qcCont.innerHTML = qcHtml;
 
         let shownScore = 0, currentScore = 0, scoreRAF;
         function tweenScore(to) {
@@ -944,94 +918,129 @@
             statusEl.classList.remove('pop'); void statusEl.offsetWidth; statusEl.classList.add('pop');
         }
         
-        function refreshDataBackground() {
-            const syncStatus = document.getElementById('agentSyncStatus');
-            if (syncStatus) { syncStatus.innerHTML = '⏳ Menyinkronkan...'; syncStatus.classList.add('pulse-soft'); }
-            
-            fetch(SCRIPT_URL).then(r => r.json()).then(result => {
-                if (result.status === "sukses") {
-                    masterAgentData = result.dataAgent || [];
-                    const datalist = document.getElementById('icrmList'); datalist.innerHTML = "";
-                    masterAgentData.forEach(ag => { const o = document.createElement('option'); o.value = ag.namaICRM; datalist.appendChild(o); });
-                    if (syncStatus) { syncStatus.innerHTML = '✅ Sinkron'; syncStatus.classList.remove('pulse-soft'); }
-                    
-                    masterQCData = result.dataQC || []; 
-                    
-                    const valQc = document.getElementById('filterBulanQC')?.value;
-                    const valVal = document.getElementById('filterPeriodeVal')?.value;
+        const CACHE_KEY = 'qc_cache_v1';
+        const Q_KEY = 'qc_pending_v1';
+        let flushing = false;
 
-                    populatePeriodeDropdowns();
+        const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+        const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+        const getQ = () => lsGet(Q_KEY) || [];
 
-                    if(valQc) document.getElementById('filterBulanQC').value = valQc;
-                    if(valVal) document.getElementById('filterPeriodeVal').value = valVal;
+        function hideLoader() {
+            const l = document.getElementById('loadingScreen');
+            if (l) { l.classList.add('hide'); setTimeout(() => l.remove(), 650); }
+        }
 
-                    if(!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
-                        // Jangan trigger full animasi saat data di refresh background, cukup ubah isinya
-                        if(document.getElementById('reportTypeSelector').value === 'qc') { generateReport(); } 
-                        else { renderValidasiReport(); }
-                    }
+        function renderAgentList() {
+            document.getElementById('icrmList').innerHTML = masterAgentData
+                .map(ag => '<option value="' + String(ag.namaICRM).replace(/"/g, '&quot;') + '">').join('');
+        }
+
+        function applyData(res) {
+            masterAgentData = res.dataAgent || [];
+            masterQCData = res.dataQC || [];
+            renderAgentList();
+            const selQC = document.getElementById('filterBulanQC'), selVal = document.getElementById('filterPeriodeVal');
+            const keepQC = selQC.value, keepVal = selVal.value;
+            populatePeriodeDropdowns();
+            selQC.value = keepQC; selVal.value = keepVal;
+            if (!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
+                if (document.getElementById('reportTypeSelector').value === 'qc') generateReport();
+                else renderValidasiReport();
+            }
+        }
+
+        function syncData() {
+            if (getQ().length) return Promise.resolve();
+            const s = document.getElementById('agentSyncStatus');
+            s.classList.remove('hidden'); s.innerHTML = '⏳ Menyinkronkan...'; s.classList.add('pulse-soft');
+            return fetch(SCRIPT_URL).then(r => r.json()).then(res => {
+                if (res.status !== 'sukses') throw new Error(res.error || 'Respons tidak valid');
+                lsSet(CACHE_KEY, { dataAgent: res.dataAgent || [], dataQC: res.dataQC || [] });
+                applyData(res);
+                s.innerHTML = '✅ Sinkron';
+            }).catch(e => {
+                console.error(e);
+                s.innerHTML = '⚠️ Data dari cache';
+                showToast('Gagal memuat data terbaru dari server.', 'error');
+            }).finally(() => s.classList.remove('pulse-soft'));
+        }
+
+        function postData(payload) {
+            return fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }).then(r => r.json());
+        }
+
+        async function flushQueue() {
+            if (flushing) return;
+            flushing = true;
+            const q = getQ();
+            while (q.length) {
+                try {
+                    const r = await postData(q[0]);
+                    if (r.status !== 'sukses') showToast('Gagal: ' + (r.error || 'ditolak server'), 'error');
+                    q.shift(); lsSet(Q_KEY, q);
+                } catch (e) {
+                    showToast('Jaringan bermasalah. Data aman dan dikirim ulang otomatis.', 'error');
+                    break;
                 }
-            }).catch(e => console.error(e));
+            }
+            flushing = false;
+            if (!q.length) syncData();
+        }
+
+        function queuePost(payload) {
+            lsSet(CACHE_KEY, { dataAgent: masterAgentData, dataQC: masterQCData });
+            const q = getQ(); q.push(payload); lsSet(Q_KEY, q);
+            flushQueue();
+        }
+
+        window.addEventListener('online', flushQueue);
+        window.addEventListener('DOMContentLoaded', () => {
+            const cached = lsGet(CACHE_KEY);
+            if (cached) {
+                applyData(cached);
+                document.getElementById('agentSyncStatus').classList.remove('hidden');
+                hideLoader();
+            }
+            setTimeout(hideLoader, 10000);
+            (getQ().length ? flushQueue() : syncData()).finally(hideLoader);
+        });
+
+        function resetQCForm(form) {
+            form.reset(); tweenScore(0);
+            const bar = document.getElementById('scoreBarDesk'), st = document.getElementById('scoreStatusDesk');
+            bar.className = 'bg-slate-300 h-3 rounded-full transition-all shadow-none'; bar.style.width = '0%';
+            document.getElementById('scorePctDesk').innerText = '0%';
+            st.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>';
+            document.querySelectorAll('.qc-item').forEach(i => {
+                i.classList.remove('answered', 'flagged', 'perfect');
+                const n = i.querySelector('.note-accordion'); if (n) n.classList.remove('open');
+            });
         }
 
         function submitFormQC(event) {
             event.preventDefault();
-            const btnDesk = document.getElementById('btnSubmitDesk'), btnMob = document.getElementById('btnSubmitMob');
-            const originalText = btnDesk.innerHTML;
-            const spin = '<span class="spinner"></span>Mengirim...'; btnDesk.innerHTML = spin; btnMob.innerHTML = spin; btnDesk.disabled = true; btnMob.disabled = true;
-
-            const formData = new FormData(event.target);
-            const dataToSubmit = Object.fromEntries(formData.entries());
-            dataToSubmit.action = "inputQC"; 
-            dataToSubmit.totalSkor = String(currentScore);
-            ['1','2','3','4','5','6','7','8','8_1','9','10'].forEach(num => { dataToSubmit['c' + num] = formData.get('c_q' + num) || ""; });
-
-            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataToSubmit), headers: { "Content-Type": "text/plain;charset=utf-8" } })
-            .then(res => res.json()).then(result => {
-                if (result.status === "sukses") { 
-                    showToast('Penilaian QC berhasil disimpan'); 
-                    
-                    event.target.reset(); 
-                    tweenScore(0); 
-                    
-                    const bar = document.getElementById('scoreBarDesk');
-                    const statusEl = document.getElementById('scoreStatusDesk');
-                    bar.className = "bg-slate-300 h-3 rounded-full transition-all shadow-none";
-                    bar.style.width = '0%';
-                    document.getElementById('scorePctDesk').innerText = '0%';
-                    statusEl.innerHTML = '<span class="text-slate-400">Dalam Pengisian...</span>';
-                    
-                    document.querySelectorAll('.qc-item').forEach(item => {
-                        item.classList.remove('answered', 'flagged', 'perfect');
-                        const noteBox = item.querySelector('.note-accordion');
-                        if(noteBox) noteBox.classList.remove('open');
-                    });
-                    
-                    refreshDataBackground(); 
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } 
-                else showToast('Gagal: ' + result.error, 'error');
-            }).catch(err => showToast('Terjadi kesalahan jaringan.', 'error')).finally(() => { btnDesk.innerHTML = originalText; btnMob.innerHTML = "Kirim QC"; btnDesk.disabled = false; btnMob.disabled = false; });
+            const form = event.target, data = Object.fromEntries(new FormData(form).entries());
+            data.action = 'inputQC';
+            data.totalSkor = String(currentScore);
+            ['1','2','3','4','5','6','7','8','8_1','9','10'].forEach(n => { data['c' + n] = data['c_q' + n] || ''; });
+            masterQCData.push({ ...data, timestamp: new Date().toISOString() });
+            showToast('Penilaian QC tersimpan');
+            resetQCForm(form);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            queuePost(data);
         }
 
         function submitFormAgent(event) {
             event.preventDefault();
-            const btn = document.getElementById('btnSubmitAgent'); const originalText = btn.innerHTML;
-            btn.innerHTML = '<span class="spinner"></span>Menyimpan...'; btn.disabled = true;
-            const formData = new FormData(event.target); const dataToSubmit = Object.fromEntries(formData.entries());
-            dataToSubmit.action = "inputAgent";
-            
-            fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(dataToSubmit), headers: { "Content-Type": "text/plain;charset=utf-8" } })
-            .then(res => res.json()).then(result => {
-                if (result.status === "sukses") { 
-                    showToast('Data agent berhasil disimpan'); 
-                    event.target.reset(); 
-                    refreshDataBackground(); 
-                    
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } 
-                else showToast('Gagal: ' + result.error, 'error');
-            }).catch(err => showToast('Terjadi kesalahan jaringan.', 'error')).finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
+            const form = event.target, data = Object.fromEntries(new FormData(form).entries());
+            data.action = 'inputAgent';
+            masterAgentData.push({ ...data });
+            renderAgentList();
+            showToast('Data agent tersimpan');
+            form.reset();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            queuePost(data);
         }
     </script>
 </body>
