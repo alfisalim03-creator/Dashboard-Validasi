@@ -235,7 +235,7 @@
                 </div>
                 <!-- Tren Harian QC (Chart.js) -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">📈 Tren Harian Agent yang di QC (Bulan Ini)</h3>
+                    <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">📈 Tren Harian Agent yang di QC</h3>
                     <div class="relative flex-1 w-full" style="min-height: 200px;">
                         <canvas id="chartTrenQC"></canvas>
                     </div>
@@ -248,16 +248,16 @@
                 <div class="flex flex-col sm:flex-row gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl mb-6">
                     <div class="flex-1">
                         <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Pilih Nama QC</label>
-                        <select id="filterNamaQC" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg">
+                        <select id="filterNamaQC" onchange="generateReport()" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg cursor-pointer">
                             <option value="Mahmed Farissa">Mahmed Farissa</option><option value="Nurul Fatima Assyahrul Hidayati">Nurul Fatima Assyahrul Hidayati</option><option value="Agung Setiawan">Agung Setiawan</option>
                         </select>
                     </div>
                     <div class="flex-1">
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Pilih Bulan</label>
-                        <input type="month" id="filterBulanQC" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg cursor-pointer" onclick="try{this.showPicker();}catch(e){}">
-                    </div>
-                    <div class="sm:flex-none flex items-end">
-                        <button onclick="generateReport()" class="w-full sm:w-auto px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm transition-colors">Tampilkan Laporan</button>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Pilih Periode</label>
+                        <select id="filterBulanQC" onchange="generateReport()" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg cursor-pointer">
+                            <option value="ALL">Semua Periode</option>
+                            <!-- Pilihan bulan otomatis dimuat JS -->
+                        </select>
                     </div>
                 </div>
                 <div id="reportContainer" class="space-y-4"></div>
@@ -281,24 +281,22 @@
                 </div>
                 <div class="flex-1">
                     <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter Periode</label>
-                    <select id="filterPeriodeValType" onchange="togglePeriodeValInput(); renderValidasiReport()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer font-medium text-slate-700 mb-2 sm:mb-0">
-                        <option value="all">Semua Periode</option>
-                        <option value="month">Bulan Spesifik</option>
+                    <select id="filterPeriodeVal" onchange="renderValidasiReport()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer font-medium text-slate-700">
+                        <option value="ALL">Semua Periode</option>
+                        <!-- Pilihan bulan otomatis dimuat JS -->
                     </select>
-                </div>
-                <div class="flex-1" id="boxBulanVal" style="display: none;">
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1 text-transparent hidden sm:block">_</label>
-                    <input type="month" id="filterBulanVal" onchange="renderValidasiReport()" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg cursor-pointer" onclick="try{this.showPicker();}catch(e){}">
                 </div>
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Ranking Agent -->
+                <!-- Ranking Agent (Berbatas Tinggi & Scroll) -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full">
                     <h3 class="text-sm font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">🏆 Top Ranking Validasi Agent</h3>
-                    <div class="overflow-x-auto flex-1">
-                        <table class="w-full text-left text-sm">
-                            <thead class="text-xs text-slate-500 bg-slate-50 uppercase"><tr><th class="px-3 py-2">Peringkat</th><th class="px-3 py-2">Nama Agent</th><th class="px-3 py-2 text-right">Rata-rata Skor</th></tr></thead>
+                    <div class="overflow-y-auto flex-1 pr-2" style="max-height: 380px;">
+                        <table class="w-full text-left text-sm relative">
+                            <thead class="text-xs text-slate-500 bg-slate-50 uppercase sticky top-0 z-10 shadow-sm">
+                                <tr><th class="px-3 py-2">Peringkat</th><th class="px-3 py-2">Nama Agent</th><th class="px-3 py-2 text-right">Rata-rata Skor</th></tr>
+                            </thead>
                             <tbody id="tblRankingAgent" class="divide-y divide-slate-100"></tbody>
                         </table>
                     </div>
@@ -352,11 +350,6 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            const today = new Date(); 
-            const yyyyMm = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-            document.getElementById('filterBulanQC').value = yyyyMm;
-            document.getElementById('filterBulanVal').value = yyyyMm;
-            
             // Proses Fetch Data Pertama Kali & Menghilangkan Loading Screen
             fetch(SCRIPT_URL).then(r => r.json()).then(result => {
                 if (result.status === "sukses") {
@@ -366,27 +359,62 @@
                     document.getElementById('agentSyncStatus').classList.remove('hidden');
                     
                     masterQCData = result.dataQC || []; 
+                    
+                    // Eksekusi Pembuatan Dropdown Bulan
+                    populatePeriodeDropdowns();
+
                     if(!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
                         switchReportView();
                     }
 
-                    // Hilangkan Loading Screen setelah data berhasil diambil
+                    // Hilangkan Loading Screen
                     setTimeout(() => {
                         const loader = document.getElementById('loadingScreen');
                         if(loader) {
                             loader.classList.add('hide');
-                            setTimeout(() => loader.remove(), 600); // Hapus sepenuhnya dari HTML
+                            setTimeout(() => loader.remove(), 600);
                         }
-                    }, 400); // Tambahan sedikit jeda animasi
+                    }, 400);
                 }
             }).catch(e => {
                 console.error(e);
                 showToast('Gagal memuat data dari server.', 'error');
-                // Tetap hilangkan loading jika error, agar pengguna tidak terjebak
                 const loader = document.getElementById('loadingScreen');
                 if(loader) loader.classList.add('hide');
             });
         });
+        
+        // FUNGSI BARU: Dinamis ambil bulan/tahun dari data server
+        function populatePeriodeDropdowns() {
+            const uniqueMonths = new Set();
+            masterQCData.forEach(row => {
+                if (row.timestamp) {
+                    const d = new Date(row.timestamp);
+                    const m = String(d.getMonth() + 1).padStart(2, '0');
+                    const y = d.getFullYear();
+                    uniqueMonths.add(`${y}-${m}`); // Format YYYY-MM
+                }
+            });
+            
+            // Urutkan dari yg terbaru ke terlama
+            const sortedMonths = Array.from(uniqueMonths).sort().reverse();
+            
+            // Format tulisan Bahasa Indonesia (Contoh: Januari 2026)
+            const formatter = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' });
+
+            let optionsHtml = `<option value="ALL">Semua Periode</option>`;
+            sortedMonths.forEach(ym => {
+                const [y, m] = ym.split('-');
+                const label = formatter.format(new Date(y, m - 1, 1));
+                optionsHtml += `<option value="${ym}">${label}</option>`;
+            });
+
+            const qcDrop = document.getElementById('filterBulanQC');
+            if(qcDrop) qcDrop.innerHTML = optionsHtml;
+
+            const valDrop = document.getElementById('filterPeriodeVal');
+            if(valDrop) valDrop.innerHTML = optionsHtml;
+        }
 
         function switchReportView() {
             const type = document.getElementById('reportTypeSelector').value;
@@ -401,30 +429,27 @@
             }
         }
 
-        function togglePeriodeValInput() {
-            const type = document.getElementById('filterPeriodeValType').value;
-            document.getElementById('boxBulanVal').style.display = (type === 'month') ? 'block' : 'none';
-        }
-
         function processRankingsQC() {
             if (!masterQCData.length) return;
             const qcStats = {};
             masterQCData.forEach(row => { qcStats[row.namaQC] = (qcStats[row.namaQC] || 0) + 1; });
             const qcRank = Object.keys(qcStats).map(n => ({ n, c: qcStats[n] })).sort((a, b) => b.c - a.c);
             const tblQC = document.getElementById('tblRankingQC'); tblQC.innerHTML = "";
-            qcRank.forEach((qc, i) => tblQC.innerHTML += `<tr class="border-b border-slate-50"><td class="px-3 py-2 text-center">${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2 font-bold">${qc.n}</td><td class="px-3 py-2 text-center font-bold text-emerald-600">${qc.c} Laporan</td></tr>`);
+            qcRank.forEach((qc, i) => tblQC.innerHTML += `<tr class="border-b border-slate-50"><td class="px-3 py-2 text-center">${i<3?['🥇','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2 font-bold">${qc.n}</td><td class="px-3 py-2 text-center font-bold text-emerald-600">${qc.c.toLocaleString('id-ID')} Laporan</td></tr>`);
         }
 
         function generateReport() {
             const namaQCSelected = document.getElementById('filterNamaQC').value;
-            const bulanSelected = document.getElementById('filterBulanQC').value;
+            const bulanSelected = document.getElementById('filterBulanQC').value; // 'ALL' atau 'YYYY-MM'
             const container = document.getElementById('reportContainer');
-            if (!bulanSelected) { showToast('Pilih bulan terlebih dahulu.', 'error'); return; }
 
             const filteredDetail = masterQCData.filter(row => {
                 if (!row.timestamp) return false;
                 const d = new Date(row.timestamp);
-                return row.namaQC === namaQCSelected && `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` === bulanSelected;
+                const yyyymm = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                
+                const passMonth = (bulanSelected === 'ALL' || yyyymm === bulanSelected);
+                return row.namaQC === namaQCSelected && passMonth;
             });
 
             if (!filteredDetail.length) { 
@@ -529,6 +554,7 @@
         function renderQCChart(bulan) {
             const filtered = masterQCData.filter(row => {
                 if(!row.timestamp) return false;
+                if (bulan === 'ALL') return true;
                 const d = new Date(row.timestamp);
                 return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` === bulan;
             });
@@ -537,7 +563,15 @@
             const groupedByDateStr = {};
             
             filtered.forEach(row => {
-                const dateStr = new Date(row.timestamp).toISOString().split('T')[0]; 
+                const d = new Date(row.timestamp);
+                let dateStr;
+                // Jika Semua Periode, grup berdasarkan Bulan agar chart rapi
+                if (bulan === 'ALL') {
+                    dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                } else {
+                    dateStr = d.toISOString().split('T')[0]; // Berdasarkan hari
+                }
+
                 if(!groupedByDateStr[dateStr]) {
                     groupedByDateStr[dateStr] = {};
                     qcs.forEach(qc => groupedByDateStr[dateStr][qc] = 0);
@@ -548,7 +582,14 @@
             });
 
             const sortedDates = Object.keys(groupedByDateStr).sort();
-            const labels = sortedDates.map(d => new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }));
+            const labels = sortedDates.map(d => {
+                if (bulan === 'ALL') {
+                    const [y, m] = d.split('-');
+                    return new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' });
+                } else {
+                    return new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+                }
+            });
             const colors = ['#4f46e5', '#10b981', '#f59e0b']; 
 
             const datasets = qcs.map((qc, i) => {
@@ -579,28 +620,28 @@
 
         function renderValidasiReport() {
             const filterRegion = document.getElementById('filterRegionVal').value;
-            const filterPeriodeType = document.getElementById('filterPeriodeValType').value;
-            const filterBulan = document.getElementById('filterBulanVal').value;
+            const filterBulan = document.getElementById('filterPeriodeVal').value; // ALL atau YYYY-MM
 
             const filteredData = masterQCData.filter(row => {
                 if(!row.timestamp) return false;
                 let passRegion = (filterRegion === 'ALL' || row.region === filterRegion);
                 let passPeriode = true;
-                if (filterPeriodeType === 'month' && filterBulan) {
+                if (filterBulan !== 'ALL') {
                     const d = new Date(row.timestamp);
                     passPeriode = (`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` === filterBulan);
                 }
                 return passRegion && passPeriode;
             });
 
-            // 1. UPDATE RANKING AGENT (TERFILTER)
+            // 1. UPDATE RANKING AGENT (SEMUA AGENT)
             const agentStats = {};
             filteredData.forEach(row => {
                 if (!agentStats[row.namaAgent]) agentStats[row.namaAgent] = { t: 0, c: 0 };
                 agentStats[row.namaAgent].t += Number(row.totalSkor || 0); 
                 agentStats[row.namaAgent].c += 1;
             });
-            const agentRank = Object.keys(agentStats).map(n => ({ n, avg: agentStats[n].t / agentStats[n].c })).sort((a, b) => b.avg - a.avg).slice(0, 10);
+            // Tidak ada limit .slice(0,10) - tampilkan semuanya
+            const agentRank = Object.keys(agentStats).map(n => ({ n, avg: agentStats[n].t / agentStats[n].c })).sort((a, b) => b.avg - a.avg);
             
             const tblAg = document.getElementById('tblRankingAgent'); tblAg.innerHTML = "";
             if(agentRank.length === 0) {
@@ -611,12 +652,12 @@
 
             // 2. CHART TREN VALIDASI
             const trendMap = {};
-            document.getElementById('labelTrenValDesc').innerText = (filterPeriodeType === 'all') ? "Menampilkan tren jumlah validasi bulanan." : "Menampilkan tren harian di bulan terpilih.";
+            document.getElementById('labelTrenValDesc').innerText = (filterBulan === 'ALL') ? "Menampilkan tren jumlah validasi bulanan." : "Menampilkan tren harian di bulan terpilih.";
 
             filteredData.forEach(row => {
                 const d = new Date(row.timestamp);
                 let key, label;
-                if (filterPeriodeType === 'all') {
+                if (filterBulan === 'ALL') {
                     key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
                     label = d.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
                 } else {
@@ -792,6 +833,16 @@
                     if (syncStatus) syncStatus.innerHTML = '✅ Sinkron';
                     
                     masterQCData = result.dataQC || []; 
+                    
+                    // Simpan nilai pilihan agar tidak reset ke awal setelah sinkron
+                    const valQc = document.getElementById('filterBulanQC')?.value;
+                    const valVal = document.getElementById('filterPeriodeVal')?.value;
+
+                    populatePeriodeDropdowns();
+
+                    if(valQc) document.getElementById('filterBulanQC').value = valQc;
+                    if(valVal) document.getElementById('filterPeriodeVal').value = valVal;
+
                     if(!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
                         switchReportView();
                     }
@@ -855,7 +906,6 @@
                     event.target.reset(); 
                     refreshDataBackground(); 
                     
-                    // OTOMATIS SCROLL KE ATAS JUGA DI TAB AGENT
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } 
                 else showToast('Gagal: ' + result.error, 'error');
