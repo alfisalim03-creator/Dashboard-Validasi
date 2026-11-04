@@ -6,6 +6,8 @@
     <title>Portal QC Validasi & Laporan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- TAMBAHAN: Library PapaParse untuk membaca CSV dengan sangat cepat -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; }
@@ -355,20 +357,23 @@
     <div id="toastBox" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
-        // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
+        // MASUKKAN URL GOOGLE APPS SCRIPT DAN URL CSV ANDA DI SINI
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0XtgHtB39wa55OwveCf92ozCo1Vc_B76_5rM9DkwfMl6oL_MNJla-Vwz8yp8RDt-/exec"; 
+        
+        // PENTING: Ganti string ini dengan URL file CSV yang menyimpan data historis (Januari - September)
+        const URL_CSV_HISTORICAL = "https://drive.google.com/file/d/1vlwozcFEL_n2JAWW5KEqYZhcLzavM856/view?usp=drive_link"; 
         
         const paramMax = { q1: 5, q2: 5, q3: 20, q4: 15, q5: 10, q6: 10, q7: 10, q8: 5, q8_1: 10, q9: 5, q10: 5 };
         const questionMap = { q1: "Salam Pembuka", q2: "Konfirmasi Kesediaan", q3: "Verifikasi Data", q4: "Kesesuaian Edukasi", q5: "Pemilihan Kalimat", q6: "Kejelasan Ucapan", q7: "Etika Komunikasi", q8: "Pencatatan Hasil", q8_1: "Kesesuaian Pencatatan", q9: "Konfirmasi Pertanyaan", q10: "Salam Penutup" };
 
         let masterAgentData = []; 
         let masterQCData = [];
+        let historicalCSVData = []; // Menyimpan data CSV di memori
         
         let chartQC = null;
         let chartTrenVal = null;
         let chartRegionVal = null;
 
-        // Navigasi Tab Utama yang Diperbarui dengan Animasi
         function switchTab(tab) {
             const tabs = ['qc', 'agent', 'dashboard'];
             tabs.forEach(t => {
@@ -379,16 +384,14 @@
                 if (pageEl) {
                     if (isMatch) {
                         pageEl.classList.remove('hidden-tab');
-                        // Re-trigger CSS animation
                         pageEl.classList.remove('animate-fade-tab');
-                        void pageEl.offsetWidth; // trigger reflow
+                        void pageEl.offsetWidth; 
                         pageEl.classList.add('animate-fade-tab');
                     } else {
                         pageEl.classList.add('hidden-tab');
                     }
                 }
                 
-                // Desktop Buttons Styling
                 const btnDesk = document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash'));
                 if (btnDesk) {
                     btnDesk.className = isMatch 
@@ -396,7 +399,6 @@
                         : "px-5 py-1.5 text-sm font-bold rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition-all";
                 }
                 
-                // Mobile Buttons Styling (Segmented Style)
                 const btnMob = document.getElementById('btnTab' + (t === 'qc' ? 'QC' : t === 'agent' ? 'Agent' : 'Dash') + 'Mob');
                 if (btnMob) {
                     btnMob.className = isMatch 
@@ -408,7 +410,6 @@
             if(tab === 'dashboard') { switchReportView(); }
         }
 
-        // Pemicu animasi pembaharuan form/tabel saat filter diubah
         function triggerReportAnimation(callbackFunction) {
             const activeView = document.querySelector('.report-view:not(.hidden)');
             if(activeView) {
@@ -419,37 +420,57 @@
             callbackFunction();
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            fetch(SCRIPT_URL).then(r => r.json()).then(result => {
-                if (result.status === "sukses") {
-                    masterAgentData = result.dataAgent || [];
+        // ==========================================
+        // PROSES PEMANGGILAN HYBRID (CSV + GAS)
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Fetch paralel: Mengambil CSV dan Apps Script di waktu yang bersamaan
+                const [resCSV, resGAS] = await Promise.all([
+                    fetch(URL_CSV_HISTORICAL).then(r => r.text()).catch(e => { console.warn("Peringatan: Gagal memuat file CSV", e); return ""; }),
+                    fetch(SCRIPT_URL).then(r => r.json())
+                ]);
+
+                // 1. Parsing data CSV menggunakan PapaParse
+                if (resCSV) {
+                    const parsed = Papa.parse(resCSV, { header: true, skipEmptyLines: true });
+                    historicalCSVData = parsed.data;
+                }
+
+                // 2. Parsing data Google Apps Script
+                if (resGAS.status === "sukses") {
+                    masterAgentData = resGAS.dataAgent || [];
                     const datalist = document.getElementById('icrmList'); datalist.innerHTML = "";
                     masterAgentData.forEach(ag => { const o = document.createElement('option'); o.value = ag.namaICRM; datalist.appendChild(o); });
                     document.getElementById('agentSyncStatus').classList.remove('hidden');
                     
-                    masterQCData = result.dataQC || []; 
+                    const recentQCData = resGAS.dataQC || []; 
+                    
+                    // 3. GABUNGKAN KEDUA DATA (Hot + Cold)
+                    masterQCData = [...historicalCSVData, ...recentQCData];
                     
                     populatePeriodeDropdowns();
 
                     if(!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
                         switchReportView();
                     }
-
-                    // Menghilangkan Loading Screen dengan Fade Out Lembut
-                    setTimeout(() => {
-                        const loader = document.getElementById('loadingScreen');
-                        if(loader) {
-                            loader.classList.add('hide');
-                            setTimeout(() => loader.remove(), 600); // Hapus elemen dari DOM setelah animasi css selesai
-                        }
-                    }, 500);
                 }
-            }).catch(e => {
-                console.error(e);
-                showToast('Gagal memuat data dari server.', 'error');
+
+                // Menghilangkan Loading Screen
+                setTimeout(() => {
+                    const loader = document.getElementById('loadingScreen');
+                    if(loader) {
+                        loader.classList.add('hide');
+                        setTimeout(() => loader.remove(), 600);
+                    }
+                }, 500);
+
+            } catch (error) {
+                console.error("Gagal memuat data dari server:", error);
+                showToast('Gagal memuat data.', 'error');
                 const loader = document.getElementById('loadingScreen');
                 if(loader) loader.classList.add('hide');
-            });
+            }
         });
         
         function populatePeriodeDropdowns() {
@@ -488,13 +509,11 @@
             if(type === 'qc') {
                 viewVal.classList.add('hidden');
                 viewQC.classList.remove('hidden');
-                // Re-trigger animation
                 viewQC.classList.remove('animate-fade-tab'); void viewQC.offsetWidth; viewQC.classList.add('animate-fade-tab');
                 generateReport(); 
             } else {
                 viewQC.classList.add('hidden');
                 viewVal.classList.remove('hidden');
-                // Re-trigger animation
                 viewVal.classList.remove('animate-fade-tab'); void viewVal.offsetWidth; viewVal.classList.add('animate-fade-tab');
                 renderValidasiReport(); 
             }
@@ -678,7 +697,7 @@
                     borderColor: colors[i],
                     backgroundColor: colors[i] + '20',
                     borderWidth: 2,
-                    tension: 0.4, // Membuat kurva lebih halus
+                    tension: 0.4, 
                     fill: true,
                     pointBackgroundColor: colors[i],
                     pointRadius: 4,
@@ -721,7 +740,6 @@
                 return passRegion && passPeriode;
             });
 
-            // 1. UPDATE RANKING AGENT
             const agentStats = {};
             filteredData.forEach(row => {
                 if (!agentStats[row.namaAgent]) agentStats[row.namaAgent] = { t: 0, c: 0 };
@@ -738,7 +756,6 @@
                 agentRank.forEach((ag, i) => tblAg.innerHTML += `<tr class="border-b border-slate-50 hover:bg-slate-50/80 transition-colors"><td class="px-3 py-2.5 text-center">${i<3?['🏆','🥈','🥉'][i]:i+1}</td><td class="px-3 py-2.5 font-bold text-slate-700">${ag.n}</td><td class="px-3 py-2.5 text-right"><span class="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-lg font-bold border border-indigo-100 shadow-sm">${ag.avg.toFixed(1)}/100</span></td></tr>`);
             }
 
-            // 2. CHART TREN VALIDASI
             const trendMap = {};
             document.getElementById('labelTrenValDesc').innerText = (filterBulan === 'ALL') ? "Menampilkan tren jumlah validasi bulanan." : "Menampilkan tren harian di bulan terpilih.";
 
@@ -770,7 +787,7 @@
                         borderColor: '#0ea5e9', 
                         backgroundColor: '#0ea5e920', 
                         fill: true, 
-                        tension: 0.4, // kurva halus
+                        tension: 0.4, 
                         borderWidth: 2, 
                         pointBackgroundColor: '#0ea5e9',
                         pointRadius: 4,
@@ -791,7 +808,6 @@
                 }
             });
 
-            // 3. CHART VALIDASI PER REGION
             const regionMap = {};
             filteredData.forEach(row => {
                 const r = row.region || 'Unknown';
@@ -830,7 +846,6 @@
             if (arrow) arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
         }
 
-        // FUNGSI TOGGLE ACCORDION UNTUK CATATAN FORMULIR QC
         function toggleNoteAccordion(radioEl) {
             const card = radioEl.closest('.qc-item');
             if (!card) return;
@@ -892,10 +907,10 @@
         let shownScore = 0, currentScore = 0, scoreRAF;
         function tweenScore(to) {
             currentScore = to; cancelAnimationFrame(scoreRAF);
-            const from = shownScore, t0 = performance.now(), dur = 600; // sedikit diperlambat agar lebih dramatis
+            const from = shownScore, t0 = performance.now(), dur = 600; 
             const els = [document.getElementById('scoreTotalDesk'), document.getElementById('scoreTotalMob')];
             const step = now => {
-                const p = Math.min((now - t0) / dur, 1), e = 1 - Math.pow(1 - p, 4); // ease out quart
+                const p = Math.min((now - t0) / dur, 1), e = 1 - Math.pow(1 - p, 4); 
                 shownScore = Math.round(from + (to - from) * e);
                 els.forEach(el => el.innerText = shownScore);
                 if (p < 1) scoreRAF = requestAnimationFrame(step);
@@ -944,10 +959,14 @@
             statusEl.classList.remove('pop'); void statusEl.offsetWidth; statusEl.classList.add('pop');
         }
         
+        // ==========================================
+        // UPDATE REFRESH DATA BACKGROUND (Tetap baca CSV yang di memori)
+        // ==========================================
         function refreshDataBackground() {
             const syncStatus = document.getElementById('agentSyncStatus');
             if (syncStatus) { syncStatus.innerHTML = '⏳ Menyinkronkan...'; syncStatus.classList.add('pulse-soft'); }
             
+            // Kita hanya me-refresh data Google Apps Script (karena CSV sifatnya statis/tidak berubah)
             fetch(SCRIPT_URL).then(r => r.json()).then(result => {
                 if (result.status === "sukses") {
                     masterAgentData = result.dataAgent || [];
@@ -955,7 +974,10 @@
                     masterAgentData.forEach(ag => { const o = document.createElement('option'); o.value = ag.namaICRM; datalist.appendChild(o); });
                     if (syncStatus) { syncStatus.innerHTML = '✅ Sinkron'; syncStatus.classList.remove('pulse-soft'); }
                     
-                    masterQCData = result.dataQC || []; 
+                    const recentQCData = result.dataQC || []; 
+                    
+                    // Gabungkan kembali data baru dari GAS dengan data historis dari CSV
+                    masterQCData = [...historicalCSVData, ...recentQCData]; 
                     
                     const valQc = document.getElementById('filterBulanQC')?.value;
                     const valVal = document.getElementById('filterPeriodeVal')?.value;
@@ -966,7 +988,6 @@
                     if(valVal) document.getElementById('filterPeriodeVal').value = valVal;
 
                     if(!document.getElementById('pageDashboard').classList.contains('hidden-tab')) {
-                        // Jangan trigger full animasi saat data di refresh background, cukup ubah isinya
                         if(document.getElementById('reportTypeSelector').value === 'qc') { generateReport(); } 
                         else { renderValidasiReport(); }
                     }
